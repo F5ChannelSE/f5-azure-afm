@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "networkInterfaceName": {
+            "value": "f5student905-app387"
+        },
+        "subnetName": {
+            "value": "internal"
+        },
+        "virtualNetworkId": {
+            "value": "/subscriptions/c4564a23-e5f7-42b7-9440-6f207859a624/resourceGroups/f5student905-rg/providers/Microsoft.Network/virtualNetworks/f5student905bigip-vnet"
+        },
+        "virtualMachineName": {
+            "value": "f5student905-app3"
+        },
+        "virtualMachineComputerName": {
+            "value": "f5student905-app3"
+        },
+        "virtualMachineRG": {
+            "value": "f5student905-rg"
+        },
+        "osDiskType": {
+            "value": "Standard_LRS"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_B1ms"
+        },
+        "adminUsername": {
+            "value": "azureuser"
+        },
+        "adminPassword": {
+            "value": null
+        }
+    }
+}

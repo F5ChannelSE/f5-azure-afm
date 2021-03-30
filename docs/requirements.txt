@@ -6,3 +6,4 @@ sphinxcontrib-addmetahtml
 #sphinxcontrib-nwdiag
 #sphinxcontrib-blockdiag
 sphinxjp.themes.basicstrap
+sphinx-copybutton

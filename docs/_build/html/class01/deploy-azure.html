@@ -14,7 +14,7 @@
   <meta name="title" content="Deploy BIG-IP In Azure"/>
   <meta name="product" content="AFM for Azure Ingress/Egress traffic filtering and VPN tunneling"/>
   <meta name="version" content=""/>
-  <meta name="updated_date"  content="2021-03-29 09:48:08"/>
+  <meta name="updated_date"  content="2021-03-30 06:44:35"/>
   <meta name="archived" content="Archived documents excluded"/>
   <meta name="doc_type" content="Manual"/>
   <meta name="lifecycle" content="release"/>
@@ -55,7 +55,7 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Deploy App Servers" href="ubuntu-azure.html" />
+    <link rel="next" title="Configure BIG-IP Base Configuration" href="bigip-base.html" />
     <link rel="prev" title="Class 1: AFM for Azure Ingress/Egress traffic filtering and VPN tunneling" href="class01.html" /> 
   </head><body>
   <div id="clouddocs-header"></div>
@@ -92,7 +92,12 @@
       <nav class="nav-sidebartoc">
         <span class="nav-sidebartoc">
             <ul>
-<li><a class="reference internal" href="#">Deploy BIG-IP In Azure</a></li>
+<li><a class="reference internal" href="#">Deploy BIG-IP In Azure</a><ul>
+<li><a class="reference internal" href="#launch-big-ip-3nic-stack">Launch BIG-IP 3nic stack</a></li>
+<li><a class="reference internal" href="#deploy-app-servers">Deploy App Servers</a></li>
+<li><a class="reference internal" href="#review-the-big-ip-config">Review the BIG IP config</a></li>
+</ul>
+</li>
 </ul>
 
          </span>
@@ -141,13 +146,15 @@
 <p class="last">Please note that you will incur costs associated with creating Azure resources and
 consuming F5 BIG-IP marketplace offers if you are using your own Azure account.</p>
 </div>
+<div class="section" id="launch-big-ip-3nic-stack">
+<h2>Launch BIG-IP 3nic stack<a class="headerlink" href="#launch-big-ip-3nic-stack" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
 <li><p class="first">Browse to Github to access the F5 – Azure templates</p>
 <ul class="simple">
 <li><a class="reference external" href="https://github.com/F5Networks/f5-azure-arm-templates/tree/master/experimental/standalone/3nic/new-stack/payg">https://github.com/F5Networks/f5-azure-arm-templates/tree/master/experimental/standalone/3nic/new-stack/payg</a></li>
 <li>Scroll down and click Deploy to Azure button</li>
 </ul>
-<img alt="../_images/azuredeploy.png" src="../_images/azuredeploy.png" />
+<a class="reference internal image-reference" href="../_images/azuredeploy.png"><img alt="../_images/azuredeploy.png" src="../_images/azuredeploy.png" style="width: 309.0px; height: 115.8px;" /></a>
 </li>
 <li><p class="first">You will be redirected to portal.azure.com</p>
 <ul class="simple">
@@ -204,7 +211,7 @@ consuming F5 BIG-IP marketplace offers if you are using your own Azure account.<
 </tr>
 </tbody>
 </table>
-<img alt="../_images/arm3nic.png" src="../_images/arm3nic.png" />
+<a class="reference internal image-reference" href="../_images/arm3nic.png"><img alt="../_images/arm3nic.png" src="../_images/arm3nic.png" style="width: 539.0px; height: 746.0px;" /></a>
 </li>
 <li><p class="first">Click the “Review + Create”</p>
 </li>
@@ -219,6 +226,186 @@ consuming F5 BIG-IP marketplace offers if you are using your own Azure account.<
 </li>
 </ol>
 </div>
+<div class="section" id="deploy-app-servers">
+<h2>Deploy App Servers<a class="headerlink" href="#deploy-app-servers" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Go to f5student#-rg resource group</p>
+</li>
+<li><p class="first">Deploy App1</p>
+<ul class="simple">
+<li>Click &quot;Add&quot;</li>
+<li>Select Ubuntu Server 18.04 LTS</li>
+<li>complete virtual machine template with following values</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Resource Group</td>
+<td>f5student#-rg</td>
+</tr>
+<tr class="row-even"><td>Virtual machine name</td>
+<td>f5student#-app1</td>
+</tr>
+<tr class="row-odd"><td>Admin type</td>
+<td>Password</td>
+</tr>
+<tr class="row-even"><td>Username</td>
+<td>azureuser</td>
+</tr>
+<tr class="row-odd"><td>Password</td>
+<td>ChangeMeNow123!</td>
+</tr>
+<tr class="row-even"><td>Public inbound ports</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>click &quot;Next : Disks&quot;</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>OS Disk Type</td>
+<td>Standard HDD</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>click &quot;Next : Networking&quot;</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Subnet</td>
+<td>internal (10.0.3.0/24)</td>
+</tr>
+<tr class="row-even"><td>Public IP</td>
+<td>None</td>
+</tr>
+<tr class="row-odd"><td>NIC security group</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>click &quot;Review + create&quot;</li>
+</ul>
+</li>
+<li><p class="first">Click “Create” after confirming entries</p>
+</li>
+<li><p class="first">This will take appoximately 1 minute</p>
+<ul class="simple">
+<li>Continue when deployment completed</li>
+</ul>
+</li>
+<li><p class="first">Deploy App2</p>
+<ul class="simple">
+<li>Click &quot;Add&quot;</li>
+<li>Select Ubuntu Server 18.04 LTS</li>
+<li>complete virtual machine template with following values</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Resource Group</td>
+<td>f5student#-rg</td>
+</tr>
+<tr class="row-even"><td>Virtual machine name</td>
+<td>f5student#-app2</td>
+</tr>
+<tr class="row-odd"><td>Admin type</td>
+<td>Password</td>
+</tr>
+<tr class="row-even"><td>Username</td>
+<td>azureuser</td>
+</tr>
+<tr class="row-odd"><td>Password</td>
+<td>ChangeMeNow123!</td>
+</tr>
+<tr class="row-even"><td>Public inbound ports</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>click &quot;Next : Disks&quot;</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>OS Disk Type</td>
+<td>Standard HDD</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>click &quot;Next : Networking&quot;</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="48%" />
+<col width="52%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Subnet</td>
+<td>internal (10.0.3.0/24)</td>
+</tr>
+<tr class="row-even"><td>Public IP</td>
+<td>None</td>
+</tr>
+<tr class="row-odd"><td>NIC security group</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>click &quot;Review + create&quot;</li>
+</ul>
+</li>
+<li><p class="first">Click “Create” after confirming entries</p>
+</li>
+<li><p class="first">This will take appoximately 1 minute</p>
+<ul class="simple">
+<li>Continue when deployment completed</li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="review-the-big-ip-config">
+<h2>Review the BIG IP config<a class="headerlink" href="#review-the-big-ip-config" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Access the BIG-IP management GUI<ul>
+<li>search f5student#bigip-mgmt-pip in azure portal to capture BIG-IP management public address</li>
+<li>browse to <a class="reference external" href="https:/">https:/</a>/&lt;f5student#bigip-mgmt-pip&gt;</li>
+<li>Username: admin</li>
+<li>Password: ChangeMeNow123!</li>
+</ul>
+</li>
+<li>Examine system config to validate basic network config<ul>
+<li>browse to System-&gt;Resource Provisioning to confirm AFM and LTM are provisioned</li>
+<li>browse to Network-&gt;Self IPs to capture external and internal nics and associated ip addresses</li>
+<li>browse to Network-&gt;Routes to capture default route</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
 
 
      </div>
@@ -229,7 +416,7 @@ consuming F5 BIG-IP marketplace offers if you are using your own Azure account.<
         <a href="class01.html" title="Class 1: AFM for Azure Ingress/Egress traffic filtering and VPN tunneling" accesskey="p" class="btn btn-primary left"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Previous</a>
        
        
-          <a href="ubuntu-azure.html" title="Deploy App Servers" accesskey="n" class="btn btn-primary right">Next <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
+          <a href="bigip-base.html" title="Configure BIG-IP Base Configuration" accesskey="n" class="btn btn-primary right">Next <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
        
      </div>
      </div>

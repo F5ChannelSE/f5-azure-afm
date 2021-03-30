@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<head>
+  
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PPZPQ6');</script>
+  <!-- End Google Tag Manager -->
+    <title>Configure VPN Tunnel</title>
+  
+
+  <meta charset="utf-8">
+  <!-- Twitter Bootstrap viewport setting -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- F5 metadata -->
+  <meta name="title" content="Configure VPN Tunnel"/>
+  <meta name="product" content="AFM for Azure Ingress/Egress traffic filtering and VPN tunneling"/>
+  <meta name="version" content=""/>
+  <meta name="updated_date"  content="2021-03-30 06:44:35"/>
+  <meta name="archived" content="Archived documents excluded"/>
+  <meta name="doc_type" content="Manual"/>
+  <meta name="lifecycle" content="release"/>
+  <meta name="AFM for Azure Ingress/Egress traffic filtering and VPN tunneling" content=""/>
+
+
+  
+
+  
+  <link href="https://cdn.f5.com/favicon.ico" rel="icon">
+
+</head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Configure VPN Tunnel &#8212; AFM for Azure Ingress/Egress traffic filtering and VPN tunneling  documentation</title>
+    <link rel="stylesheet" href="../_static/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/f5.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/f5-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/CoveoFullSearch.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/21fb8a09c3.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/clipboard.min.js"></script>
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Configure BIG-IP Base Configuration" href="bigip-base.html" /> 
+  </head><body>
+  <div id="clouddocs-header"></div>
+
+    <div id="sidebar" class="section-nav">
+      
+      <!--  version selector ------------------>
+      <div id="version_selector_wrapper">
+      </div>
+      <nav class="nav-sidebartoc">
+
+        
+         <h5>AFM for Azure Ingress/Egress traffic filtering and VPN tunneling  </h5>
+        
+
+        <hr>
+        <span class="nav-sidebartoc">
+            <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="class01.html">Class 1: AFM for Azure Ingress/Egress traffic filtering and VPN tunneling</a></li>
+</ul>
+
+        </span><!-- Use this file to add extra links to the bottom of the ToC sidebar -->
+<hr>
+  <span class="nav-sidebartoc">
+ <!-- insert content here -->
+  </span>
+      </nav>
+    </div>
+
+
+    <div id="right-sidebar">
+      <h7 style="font-weight:normal">On this page:</h7>
+      <nav class="nav-sidebartoc">
+        <span class="nav-sidebartoc">
+            <ul>
+<li><a class="reference internal" href="#">Configure VPN Tunnel</a><ul>
+<li><a class="reference internal" href="#plan-vpn-deployment-to-outside-vnet-using-an-azure-vpn-gateway-on-the-remote-end-ip-overlap-scenario">Plan VPN Deployment to outside VNET using an Azure VPN gateway on the remote end (IP Overlap Scenario)</a></li>
+<li><a class="reference internal" href="#deploy-said-vpn">Deploy said VPN</a></li>
+</ul>
+</li>
+</ul>
+
+         </span>
+      </nav>
+    </div>
+
+
+
+
+
+  
+  <div class="main active" id="content" >
+    <article class="docs-container site-article-inner">
+              <!-- custom breadcrumb -->
+        <h5>
+            <a href="../index.html">AFM for Azure Ingress/Egress traffic filtering and VPN tunneling</a>
+              &gt; <a href="class01.html">Class 1: AFM for Azure Ingress/Egress traffic filtering and VPN tunneling</a>
+
+          <span class="right">
+             <a href="../_sources/class01/bigip-vpn.rst.txt" rel="nofollow">Source</a> |
+          </span>
+        </h5>
+        <!-- end custom breadcrumb -->
+      
+
+
+    <!--a title="Export PDF" id="export-pdf" class="btn btn btn-link pull-right">View PDF</a-->
+    <button type="button" id="export-pdf" class="btn btn-link right">PDF</button>
+
+
+    
+     
+         <div class="sidebar" id="version-warning" style="display: none;">
+           <p class="first sidebar-title">
+           <span class="icon fa fa-info-circle fa-lg"></span> Version notice:</p>
+           <p class="last" id="currentVersion"></p>
+          </div>
+
+
+     <div role="main">
+        
+  <div class="section" id="configure-vpn-tunnel">
+<h1>Configure VPN Tunnel<a class="headerlink" href="#configure-vpn-tunnel" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="plan-vpn-deployment-to-outside-vnet-using-an-azure-vpn-gateway-on-the-remote-end-ip-overlap-scenario">
+<h2>Plan VPN Deployment to outside VNET using an Azure VPN gateway on the remote end (IP Overlap Scenario)<a class="headerlink" href="#plan-vpn-deployment-to-outside-vnet-using-an-azure-vpn-gateway-on-the-remote-end-ip-overlap-scenario" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>Discuss hard requirements (IKEv2 in VTI mode seems to work best with Azure currently)</dt>
+<dd><ul class="first last">
+<li>In most F5 deployments IKEv2 is far more stable, and VTI's are the most reliable when it comes to interoperability/stability</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Discuss RD functionality as well as the requirement for strict isolation being off</dt>
+<dd><ul class="first last">
+<li>If we are dealing with IP overlaps we have to use RD's with strict isolation off.  We can then use LTM with proper virtuals/snat pools to get the traffic flowing between overlapping networks for desired services much like Policy NAT, but with more flexibility.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Discuss how SNAT is required and the specifics around using SNAT to swing traffic between RD's when IP overlap is present</dt>
+<dd><ul class="first last">
+<li>Without SNAT we cannot obfuscate the overlapping source/dest IP's between the RD's and the solution would not function.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Discuss how the virtuals will work to get traffic flowing for desired services.</dt>
+<dd><ul class="first last">
+<li>The virtuals with cross RD snat applied allow the F5 to broker connections between overlapping IP space by virtual of being able to manipulate src/dst IP's between the RD's</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</div>
+<div class="section" id="deploy-said-vpn">
+<h2>Deploy said VPN<a class="headerlink" href="#deploy-said-vpn" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>Prep BIG-IP for VPN termination (Should be mostly completed after above steps)</dt>
+<dd><ul class="first last">
+<li>Self IP Lock Down, sys db keys, Azure NSG rules, and AFM firewall policy should be set if the previous sections were completed correctly.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>Create RD1 for routed tunnel to exist inside of and disable strict isolation in RD0.</li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>create net route-domain <span class="m">1</span> strict disabled description <span class="s2">&quot;RD1 for VPN Termination&quot;</span>
+modify net route-domain <span class="m">0</span> strict disabled
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Create VPN configuration</li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>create net ipsec ipsec-policy VPN_IPSEC_POLICY <span class="o">{</span> protocol esp mode interface ike-phase2-auth-algorithm sha256 ike-phase2-encrypt-algorithm aes256 ike-phase2-perfect-forward-secrecy modp2048 ike-phase2-lifetime <span class="m">1440</span> ike-phase2-lifetime-kilobytes <span class="m">0</span> <span class="o">}</span>
+create net ipsec traffic-selector VPN_901_TS <span class="o">{</span> source-address <span class="m">0</span>.0.0.0/0 destination-address <span class="m">0</span>.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY <span class="o">}</span>
+create net ipsec ike-peer VPN_PEER_901 <span class="o">{</span> remote-address <span class="m">52</span>.226.137.226 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key <span class="s2">&quot;RandomGarbage123&quot;</span> my-id-type address my-id-value <span class="m">138</span>.91.227.212 peers-id-type address peers-id-value <span class="m">52</span>.226.137.226 version replace-all-with <span class="o">{</span> v2 <span class="o">}</span> traffic-selector replace-all-with <span class="o">{</span> VPN_901_TS <span class="o">}</span> nat-traversal on  <span class="o">}</span>
+create net tunnels ipsec IPSEC_901_PROFILE traffic-selector VPN_901_TS defaults-from ipsec
+create net tunnels tunnel IPSEC_901_VTI profile IPSEC_901_PROFILE local-address <span class="m">10</span>.0.2.4 remote-address <span class="m">52</span>.226.137.226
+modify net route-domain <span class="m">1</span> vlans add <span class="o">{</span> IPSEC_901_VTI <span class="o">}</span>
+create net self IPSEC_901_VTI_SELF <span class="o">{</span> address <span class="m">192</span>.168.100.2%1/24 allow-service none vlan IPSEC_901_VTI <span class="o">}</span>
+create net route IPSEC_901_VTI_REMOTE_NETWORK <span class="o">{</span> network <span class="m">10</span>.0.3.0%1/24 gw <span class="m">192</span>.168.100.1%1 <span class="o">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Assign additional Azure IP’s where needed (SNAT/Internal VIP’s/Etc).  ADDED additional internal IP called VIP1 for internal VIP to send traffic to remote VPN resource</li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>create ltm snatpool RD1_SNATPOOL <span class="o">{</span> members add <span class="o">{</span> <span class="m">192</span>.168.100.10%1 <span class="o">}</span> <span class="o">}</span>
+create ltm pool RD1_POOL members replace-all-with <span class="o">{</span> <span class="m">10</span>.0.3.5%1:443 <span class="o">}</span>
+create ltm virtual VS_CROSS_RD destination <span class="m">10</span>.0.3.6:443 pool RD1_POOL source-address-translation <span class="o">{</span> <span class="nb">type</span> snat pool RD1_SNATPOOL <span class="o">}</span> profiles replace-all-with <span class="o">{</span> f5-tcp-progressive <span class="o">}</span> fw-enforced-policy HTTP_S-VIP
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Create firewall rules/apply firewall rules</li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>create security firewall policy HTTP_S-VIP rules replace-all-with <span class="o">{</span> ALLOW-HTTP_S <span class="o">{</span> action accept ip-protocol tcp destination <span class="o">{</span> ports add <span class="o">{</span> <span class="m">80</span> <span class="m">443</span> <span class="o">}</span> <span class="o">}</span> <span class="o">}</span> <span class="o">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Create VIP's/Pools/SNAT's/etc</li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>create ltm virtual VS_CROSS_RD destination <span class="m">10</span>.0.3.6:443 pool RD1_POOL source-address-translation <span class="o">{</span> <span class="nb">type</span> snat pool RD1_SNATPOOL <span class="o">}</span> profiles replace-all-with <span class="o">{</span> f5-tcp-progressive <span class="o">}</span> fw-enforced-policy HTTP_S-VIP
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Validate solution (Can servers communicate over the desired channels using our cross RD VIP's) - USED SSH FOR VALIDATION AS VM HAD NO WEBSERVER RUNNING</li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>nc -v <span class="m">10</span>.0.3.6 <span class="m">22</span>
+
+- SSH to App server to show successful connection
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Wrap up ? Mention potential addon's to the solution such as IPS/IPI Subscriptions, etc.</li>
+</ol>
+</div>
+</div>
+
+
+     </div>
+    
+     <div class="row next-prev-btn-row">
+       <div class="col-lg-12">
+       
+        <a href="bigip-base.html" title="Configure BIG-IP Base Configuration" accesskey="p" class="btn btn-primary left"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Previous</a>
+       
+       
+     </div>
+     </div>
+    
+
+    </article>
+  </div>
+
+</div>
+
+
+  <div id="clouddocs-footer"></div>
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+
+  <script src="../_static/js/index.js"></script>
+  <script src="../_static/js/jquery.appear.js"></script>
+  <script src="../_static/js/printThis.js"></script>
+  <script src="../_static/js/bootstrap.min.js"></script>
+  <script src="../_static/js/clouddocs.js"></script>
+  <script src="../_static/js/CoveoJsSearch.Lazy.min.js"></script>
+  </body>
+</html>

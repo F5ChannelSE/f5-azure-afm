@@ -16,7 +16,7 @@ Once these devices are deployed you will learn how to create and configure
 Azure Route Tables to use AFM as the gateway for desired subnets and create associated
 Ingress/Egress NAT rules and policies.
 
-Steps You will Peform
+Steps you will peform
 ~~~~~~~~~~~~~~~~~~~~~
 
 #. Deploy F5 BIG-IP LTM + AFM to new 3-NIC Azure stack
@@ -29,7 +29,7 @@ Steps You will Peform
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
-
+   
    deploy-azure
-   ubuntu-azure
-
+   bigip-base
+   bigip-vpn

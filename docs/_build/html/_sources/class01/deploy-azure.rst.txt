@@ -13,7 +13,7 @@ Launch BIG-IP 3nic stack
    - Scroll down and click Deploy to Azure button
 
    .. image:: ./images/azuredeploy.png
-      :scale: 30 %
+      :scale: 40 %
 
 #. You will be redirected to portal.azure.com
 
@@ -52,7 +52,7 @@ Launch BIG-IP 3nic stack
    +------------------------+--------------------------+ 
 
    .. image:: ./images/arm3nic.png
-      :scale: 50 %
+      :scale: 40 %
 #. Click the “Review + Create”
 #. Click “Create” after confirming entries
 #. This will take appoximately 10 minutes

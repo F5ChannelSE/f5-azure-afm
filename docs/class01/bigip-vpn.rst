@@ -70,4 +70,4 @@ Deploy said VPN
     
     - SSH to App server to show successful connection
 
-#. Wrap up ? Mention potential addon's to the solution such as IPS/IPI Subscriptions, etc.
+#. Wrap up and delete resource group 

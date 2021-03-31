@@ -20,13 +20,13 @@ Configure BIG-IP Base Configuration
         modify sys db ipsec.if.checkpolicy { value "disable" }
         modify sys db connection.vlankeyed { value "disable" }
 
-#. Configure local DNS cache for both AFM and Servers
+#. Configure local DNS cache for both AFM and Servers (You will need the IP for self_3nic/Internal VNET for the DNS Caching VIP)
 
     .. code-block:: shell
 
-        ltm dns cache resolver DNS_CACHE { route-domain 0 }
-        ltm profile dns DNS_CACHE { app-service none cache DNS_CACHE defaults-from dns enable-cache yes enable-dns-express no enable-gtm no use-local-bind no }
-        ltm pool AZURE_VNET_DNS { members { 168.63.129.16:domain { address 168.63.129.16 session monitor-enabled state up } } monitor tcp_half_open }
+        create ltm dns cache resolver DNS_CACHE route-domain 0
+        create ltm profile dns DNS_CACHE { cache DNS_CACHE enable-cache yes enable-dns-express no enable-gtm no use-local-bind no }
+        create ltm pool AZURE_VNET_DNS { members replace-all-with { 168.63.129.16:53 } monitor tcp_half_open }
         ltm virtual DNS_CACHE_TCP { creation-time 2021-03-22:15:33:44 destination 10.0.3.4:domain fw-enforced-policy DNS_CACHE ip-protocol tcp last-modified-time 2021-03-22:15:36:28 mask 255.255.255.255 pool AZURE_VNET_DNS profiles { DNS_CACHE { } f5-tcp-progressive { } } security-log-profiles { AFM-LOCAL } serverssl-use-sni disabled source 0.0.0.0/0 source-address-translation { type automap } translate-address enabled translate-port enabled vlans { internal } vlans-enabled vs-index 4 }
         ltm virtual DNS_CACHE_UDP { creation-time 2021-03-22:15:32:52 destination 10.0.3.4:domain fw-enforced-policy DNS_CACHE ip-protocol udp last-modified-time 2021-03-22:15:36:50 mask 255.255.255.255 pool AZURE_VNET_DNS profiles { DNS_CACHE { } udp { } } security-log-profiles { AFM-LOCAL } serverssl-use-sni disabled source 0.0.0.0/0 source-address-translation { type automap } translate-address enabled translate-port enabled vlans { internal } vlans-enabled vs-index 3 }
         net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones { . { nameservers { 10.0.3.4:domain { } } } } route-domain 0 }

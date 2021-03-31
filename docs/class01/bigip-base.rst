@@ -27,9 +27,9 @@ Configure BIG-IP Base Configuration
         create ltm dns cache resolver DNS_CACHE route-domain 0
         create ltm profile dns DNS_CACHE { cache DNS_CACHE enable-cache yes enable-dns-express no enable-gtm no use-local-bind no }
         create ltm pool AZURE_VNET_DNS { members replace-all-with { 168.63.129.16:53 } monitor tcp_half_open }
-        ltm virtual DNS_CACHE_TCP { creation-time 2021-03-22:15:33:44 destination 10.0.3.4:domain fw-enforced-policy DNS_CACHE ip-protocol tcp last-modified-time 2021-03-22:15:36:28 mask 255.255.255.255 pool AZURE_VNET_DNS profiles { DNS_CACHE { } f5-tcp-progressive { } } security-log-profiles { AFM-LOCAL } serverssl-use-sni disabled source 0.0.0.0/0 source-address-translation { type automap } translate-address enabled translate-port enabled vlans { internal } vlans-enabled vs-index 4 }
-        ltm virtual DNS_CACHE_UDP { creation-time 2021-03-22:15:32:52 destination 10.0.3.4:domain fw-enforced-policy DNS_CACHE ip-protocol udp last-modified-time 2021-03-22:15:36:50 mask 255.255.255.255 pool AZURE_VNET_DNS profiles { DNS_CACHE { } udp { } } security-log-profiles { AFM-LOCAL } serverssl-use-sni disabled source 0.0.0.0/0 source-address-translation { type automap } translate-address enabled translate-port enabled vlans { internal } vlans-enabled vs-index 3 }
-        net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones { . { nameservers { 10.0.3.4:domain { } } } } route-domain 0 }
+        create ltm virtual DNS_CACHE_TCP { destination <INTERNAL SELF>:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { f5-tcp-progressive {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+        create ltm virtual DNS_CACHE_UDP { destination <INTERNAL SELF>:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+        create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { <INTERNAL SELF>:53 } } } }
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
 
@@ -38,10 +38,49 @@ Configure BIG-IP Base Configuration
         security firewall global-fqdn-policy { dns-resolver LOCAL_CACHE }
 
 #. GLOBAL LOGS :
-
+    Adjust the global-network logging profile in the GUI until it matches the following configuration :
     .. code-block:: shell
 
-        list security log profile global-network
+        security log profile global-network {
+                            built-in enabled
+                            description "Default logging profile for network events"
+                            nat {
+                                end-inbound-session enabled
+                                end-outbound-session {
+                                    action enabled
+                                    elements { destination }
+                                }
+                                errors enabled
+                                log-publisher local-db-publisher
+                                log-subscriber-id enabled
+                                quota-exceeded enabled
+                                start-inbound-session enabled
+                                start-outbound-session {
+                                    action enabled
+                                    elements { destination }
+                                }
+                            }
+                            network {
+                                global-network {
+                                    filter {
+                                        log-acl-match-accept enabled
+                                        log-acl-match-drop enabled
+                                        log-acl-match-reject enabled
+                                        log-geo-always enabled
+                                        log-ip-errors enabled
+                                        log-tcp-errors enabled
+                                        log-tcp-events enabled
+                                        log-translation-fields enabled
+                                        log-user-always enabled
+                                        log-uuid-field enabled
+                                    }
+                                    publisher local-db-publisher
+                                }
+                            }
+                            protocol-dns {
+                                global-dns { }
+                            }
+                        }
 
 #. Logging Profile :
 

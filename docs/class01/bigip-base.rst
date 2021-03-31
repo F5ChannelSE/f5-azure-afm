@@ -229,9 +229,8 @@ Demonstrate Egress filtering
 
     .. code-block:: shell
 
-        dig A google.com @10.0.3.4
-        nc -v 172.217.6.46 80
-        nc -v 172.217.6.46 443
+        nc -v google.com 80
+        nc -v google.com 443
         ping 1.1.1.1
         ping 1.0.0.1
 

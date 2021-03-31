@@ -39,6 +39,7 @@ Configure BIG-IP Base Configuration
 
 #. GLOBAL LOGS :
     Adjust the global-network logging profile in the GUI until it matches the following configuration :
+    
     .. code-block:: shell
 
         security log profile global-network {
@@ -83,16 +84,50 @@ Configure BIG-IP Base Configuration
                         }
 
 #. Logging Profile :
+    Create a new logging profile called AFM-LOCAL in the GUI until it matches the following configuration :
 
     .. code-block:: shell
 
-        list security log profile AFM-LOCAL
+        security log profile AFM-LOCAL {
+                            nat {
+                                end-inbound-session enabled
+                                end-outbound-session {
+                                    action enabled
+                                    elements { destination }
+                                }
+                                errors enabled
+                                log-publisher local-db-publisher
+                                log-subscriber-id enabled
+                                quota-exceeded enabled
+                                start-inbound-session enabled
+                                start-outbound-session {
+                                    action enabled
+                                    elements { destination }
+                                }
+                            }
+                            network {
+                                AFM-LOCAL {
+                                    filter {
+                                        log-acl-match-accept enabled
+                                        log-acl-match-drop enabled
+                                        log-acl-match-reject enabled
+                                        log-geo-always enabled
+                                        log-ip-errors enabled
+                                        log-tcp-errors enabled
+                                        log-tcp-events enabled
+                                        log-translation-fields enabled
+                                        log-user-always enabled
+                                        log-uuid-field enabled
+                                    }
+                                    publisher local-db-publisher
+                                }
+                            }
+                        }
 
 #. Configure MGMT Port AFM Rules
-
     .. code-block:: shell
 
-        list security firewall management-ip-rules
+        modify security firewall management-ip-rules { rules replace-all-with { ALLOW-SSH { action accept place-before first ip-protocol tcp log yes description "Example SSH" destination { ports replace-all-with { 22 } } } ALLOW-HTTPS { action accept description "Example HTTPS" ip-protocol tcp log yes destination { ports replace-all-with { 443 } } } DENY-ALL { action drop log yes place-after last } } }
 
 #. Put AFM into FW mode
 

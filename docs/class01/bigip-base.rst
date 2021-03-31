@@ -198,6 +198,7 @@ Demonstrate Egress filtering
     .. code-block:: shell
     
     vi /etc/systemd/resolved.conf
+    
                         #  This file is part of systemd.
                         #
                         #  systemd is free software; you can redistribute it and/or modify it
@@ -220,8 +221,6 @@ Demonstrate Egress filtering
                         #DNSSEC=no
                         #Cache=yes
                         #DNSStubListener=yes
-
-    .. code-block:: shell
     
     systemctl restart systemd-resolved.service
     

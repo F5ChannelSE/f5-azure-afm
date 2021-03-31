@@ -136,19 +136,28 @@ Configure BIG-IP Base Configuration
         modify sys db tm.fw.defaultaction value drop
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
+    You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. 
 
     .. code-block:: shell
 
-        create security nat source-translation OUTBOUND-PAT addresses add { 10.0.2.10/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
+        create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
         create security nat policy OUTBOUND-PAT rules replace-all-with { RFC-1918-OUTBOUND-PAT { source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } translation { source OUTBOUND-PAT } } }
         create security firewall policy PUBLIC-SELF rules replace-all-with { ALLOW-ESP { ip-protocol esp action accept } ALLOW-IKE { ip-protocol udp destination { ports add { 500 } } action accept } ALLOW-NAT-T { ip-protocol udp destination { ports add { 4500 } } action accept } }
         create security firewall policy OUTBOUND-FORWARDING rules replace-all-with { OUTBOUND-ALLOW { action accept log yes source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } source { vlans replace-all-with { internal } } } }
+        create security firewall policy DNS_CACHE { rules replace-all-with { ALLOW-DNS-UDP { action accept ip-protocol udp log yes place-before first destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } ALLOW-DNS-TCP { action accept ip-protocol tcp log yes destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } } }
 
 #. Attach AFM Policies to Self IP's
 
     .. code-block:: shell
 
         modify net self self_2nic fw-enforced-policy PUBLIC-SELF
+        
+#. Attach AFM Policy to DNS Cache VIP
+
+    .. code-block:: shell
+    
+        modify ltm virtual DNS_CACHE_UDP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
+        modify ltm virtual DNS_CACHE_TCP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
 
 #. Configure forwarding virtual servers for outbound traffic and attach AFM Policies/NAT Policies where applicable
 
@@ -182,6 +191,40 @@ Demonstrate Egress filtering
 
         modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-GOOGLE.COM { ip-protocol tcp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { fqdns add { google.com www.google.com } ports add { 80 443 } } place-after first action accept log yes } }
         modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
+        
+#. Configure Server to use DNS Caching VIP 
+    You will need the internal IP of the AFM and to be SSH'd into both app servers 
+    
+    .. code-block:: shell
+    
+    vi /etc/systemd/resolved.conf
+                        #  This file is part of systemd.
+                        #
+                        #  systemd is free software; you can redistribute it and/or modify it
+                        #  under the terms of the GNU Lesser General Public License as published by
+                        #  the Free Software Foundation; either version 2.1 of the License, or
+                        #  (at your option) any later version.
+                        #
+                        # Entries in this file show the compile time defaults.
+                        # You can change settings by editing this file.
+                        # Defaults can be restored by simply deleting this file.
+                        #
+                        # See resolved.conf(5) for details
+                        
+                        [Resolve]
+                        DNS=<CHANGE THIS TO AFM DNS CACHE IP>
+                        #FallbackDNS=
+                        #Domains=
+                        #LLMNR=no
+                        #MulticastDNS=no
+                        #DNSSEC=no
+                        #Cache=yes
+                        #DNSStubListener=yes
+
+    .. code-block:: shell
+    
+    systemctl restart systemd-resolved.service
+    
 
 #. Confirm whitelisting works as expected, show logs
 
@@ -192,7 +235,6 @@ Demonstrate Egress filtering
         nc -v 172.217.6.46 443
         ping 1.1.1.1
         ping 1.0.0.1
-        cat /etc/systemd/resolved.conf
 
 Demonstrate Ingress NAT via AFM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -177,7 +177,7 @@ Demonstrate Egress filtering
 
         modify security firewall policy OUTBOUND-FORWARDING rules none
 
-#. Confirm outbound access is now blocked, show logs
+#. Confirm outbound access is now blocked from APP servers, show logs in AFM GUI
 
     .. code-block:: shell
 
@@ -185,7 +185,7 @@ Demonstrate Egress filtering
 
     - should result in 100% packet loss
 
-#. Whitelist specific hosts/ports/protocols/FQDN's (i.e. allow ping to 8.8.8.8, 80/443 to google.com, etc)
+#. Whitelist specific hosts/ports/protocols/FQDN's (i.e. allow 80/443 to google.com and ICMP to CloudFlare DNS)
 
     .. code-block:: shell
 
@@ -193,7 +193,7 @@ Demonstrate Egress filtering
         modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
         
 #. Configure Server to use DNS Caching VIP 
-    You will need the internal IP of the AFM and to be SSH'd into both app servers 
+    You will need the internal IP of the AFM and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverate our F5 DNS cache so that AFM FQDN resolution works correctly. 
     
     .. code-block:: shell
     
@@ -225,7 +225,7 @@ Demonstrate Egress filtering
     systemctl restart systemd-resolved.service
     
 
-#. Confirm whitelisting works as expected, show logs
+#. Confirm whitelisting works as expected by testing from the APP servers , show logs in AFM gui to confirm 
 
     .. code-block:: shell
 
@@ -238,26 +238,29 @@ Demonstrate Egress filtering
 Demonstrate Ingress NAT via AFM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Assign additional IP to BIGIP instance for the purposes of inbound NAT (Servers should also have any direct public IP's removed by this point)
-Instances already had additional IP's, NSG's need to be opened fully, remove public IP from instance, remove NSG/Open NSG on instance to allow AFM control
+#. Remove any current Public IP's from the Servers, Ensure they do not have any NSG's attached, ensure the External interface of the F5 does not have any NSG's attached. 
 
-#. Configure inbound port mappings (i.e. TCP/80 to server A, TCP/443 to Server B, etc get a feeling for NAT on AFM)
+#. Configure inbound port mappings for SSH to both App servers (i.e. TCP/2022 to App1, TCP/2023 to App2)
 
     .. code-block:: shell
 
-        security nat destination-translation APP2-SSH { addresses { 10.0.3.5 { } } ports { ssh { } } type static-pat }
-        security nat policy INBOUND-PAT { rules { APP2-SSH { destination { addresses { 10.0.2.11/32 { } } ports { 2022 { } } } ip-protocol tcp log-profile AFM-LOCAL source { vlans {     external     } } translation { destination APP2-SSH } } } traffic-group /Common/traffic-group-1 }
+        create security nat destination-translation APP1-SSH { addresses replace-all-with { <APP-1 IP> { } } ports replace-all-with { 22 } type static-pat }
+        create security nat destination-translation APP2-SSH { addresses replace-all-with { <APP-2 IP> { } } ports replace-all-with { 22 } type static-pat }
+        
+        create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }
 
 #. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS
 
     .. code-block:: shell
 
-        security firewall policy INBOUND-PAT { rules { ALLOW-APP2-SSH { action accept ip-protocol tcp log yes rule-number 1 destination { addresses { 10.0.2.11 { } } ports { 2022 { } } } source { vlans {     external     } } } } }
-        ltm virtual VS-FORWARDING-INBOUND { creation-time 2021-03-22:16:15:02 destination 0.0.0.0:any fw-enforced-policy INBOUND-PAT ip-forward last-modified-time 2021-03-22:16:15:21 mask any profiles { fastL4 { } } security-log-profiles { AFM-LOCAL } security-nat-policy { policy INBOUND-PAT } serverssl-use-sni disabled source 0.0.0.0/0 translate-address disabled translate-port disabled vlans { external } vlans-enabled vs-index 5 }
+        create security firewall policy INBOUND-PAT { rules replace-all-with { ALLOW-APP1-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2022 } } source { vlans replace-all-with { external } } } ALLOW-APP2-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2023 } } source { vlans replace-all-with { external } } } } }
+        create ltm virtual VS-FORWARDING-INBOUND { destination 0.0.0.0:any mask any ip-forward fw-enforced-policy INBOUND-PAT profiles replace-all-with { fastL4 } security-nat-policy { policy INBOUND-PAT } vlans-enabled vlans replace-all-with { external } }
 
-#. Validate configuration, show logs
+#. Validate configuration from outside of the F5, show logs on AFM
 
     .. code-block:: shell
 
-        nc -v 138.91.238.238 2022
-        ssh to App server to test successful connection
+        nc -v <Public IP for inbound pat> 2022
+        nc -v <Public IP for inbound pat> 2023
+        ssh -p 2022 azureuser@<public ip>
+        ssh -p 2023 azureuser@<public ip>

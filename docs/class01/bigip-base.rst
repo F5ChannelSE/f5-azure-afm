@@ -35,7 +35,7 @@ Configure BIG-IP Base Configuration
 
     .. code-block:: shell
 
-        security firewall global-fqdn-policy { dns-resolver LOCAL_CACHE }
+        modify security firewall global-fqdn-policy { dns-resolver LOCAL_CACHE }
 
 #. GLOBAL LOGS :
     Adjust the global-network logging profile in the GUI until it matches the following configuration :

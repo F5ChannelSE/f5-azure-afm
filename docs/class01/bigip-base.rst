@@ -50,7 +50,6 @@ Configure BIG-IP Base Configuration
     It should match the image below. Click the image to enlarge
 
     .. image:: ./images/globalnetwork.png
-       :scale: 40 %
 
 #. Logging Profile :
     Create a new logging profile called AFM-LOCAL
@@ -68,7 +67,6 @@ Configure BIG-IP Base Configuration
     The output should look like the image below.  Click the image to enlarge
 
     .. image:: ./images/loggingprofile.png
-       :scale: 40 %
 
 #. Configure MGMT Port AFM Rules
 

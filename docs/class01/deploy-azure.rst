@@ -49,6 +49,7 @@ Launch BIG-IP 3nic stack
    | Restricted Src Address | 0.0.0.0/0                |
    +------------------------+--------------------------+ 
 
+
    .. image:: ./images/arm3nic.png
       :scale: 40 %
 #. Click the “Review + Create”

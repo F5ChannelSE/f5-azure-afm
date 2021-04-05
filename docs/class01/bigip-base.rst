@@ -33,9 +33,9 @@ Configure BIG-IP Base Configuration
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
 
-.. code-block:: shell
+    .. code-block:: shell
 
-modify security firewall global-fqdn-policy { dns-resolver LOCAL_CACHE }
+        modify security firewall global-fqdn-policy { dns-resolver LOCAL_CACHE }
 
 #. GLOBAL LOGS : Set the global logging profile
       

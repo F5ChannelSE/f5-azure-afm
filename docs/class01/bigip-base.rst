@@ -47,7 +47,8 @@ Configure BIG-IP Base Configuration
 
         list security log profile global-network
 
-    It should match the image below. Click the image to enlarge
+    
+    It should match the image below.
 
     .. image:: ./images/globalnetwork.png
 
@@ -64,7 +65,8 @@ Configure BIG-IP Base Configuration
 
         list security log profile AFM-LOCAL
 
-    The output should look like the image below.  Click the image to enlarge
+    
+    The output should look like the image below.
 
     .. image:: ./images/loggingprofile.png
 

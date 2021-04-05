@@ -47,7 +47,7 @@ Configure BIG-IP Base Configuration
 
         list security log profile global-network
 
-It should match the image below.
+It should match the image below. Click the image to enlarge
 
     .. image:: ./images/globalnetwork.png
        :scale: 40 %
@@ -63,7 +63,7 @@ Create a new logging profile called AFM-LOCAL
 
         list security log profile AFM-LOCAL
 
-The output should look like the image below
+The output should look like the image below.  Click the image to enlarge
 
     .. image:: ./images/loggingprofile.png
        :scale: 40 %
@@ -144,7 +144,7 @@ Demonstrate Egress filtering
     
     .. code-block:: shell
     
-    vi /etc/systemd/resolved.conf
+        vi /etc/systemd/resolved.conf
     
                         #  This file is part of systemd.
                         #
@@ -169,7 +169,9 @@ Demonstrate Egress filtering
                         #Cache=yes
                         #DNSStubListener=yes
     
-    systemctl restart systemd-resolved.service
+    .. code-block:: shell
+    
+        systemctl restart systemd-resolved.service
     
 
 #. Confirm whitelisting works as expected by testing from the APP servers , show logs in AFM gui to confirm 

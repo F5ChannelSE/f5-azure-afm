@@ -50,7 +50,7 @@ Configure BIG-IP Base Configuration
 It should match the image below.
 
     .. image:: ./images/globalnetwork.png
-    :scale: 40 %
+       :scale: 40 %
 
 #. Logging Profile :
 Create a new logging profile called AFM-LOCAL
@@ -66,50 +66,50 @@ Create a new logging profile called AFM-LOCAL
 The output should look like the image below
 
     .. image:: ./images/loggingprofile.png
-    :scale: 40 %
+       :scale: 40 %
 
 #. Configure MGMT Port AFM Rules
 
-.. code-block:: shell
+    .. code-block:: shell
 
-modify security firewall management-ip-rules { rules replace-all-with { ALLOW-SSH { action accept place-before first ip-protocol tcp log yes description "Example SSH" destination { ports replace-all-with { 22 } } } ALLOW-HTTPS { action accept description "Example HTTPS" ip-protocol tcp log yes destination { ports replace-all-with { 443 } } } DENY-ALL { action drop log yes place-after last } } }
+        modify security firewall management-ip-rules { rules replace-all-with { ALLOW-SSH { action accept place-before first ip-protocol tcp log yes description "Example SSH" destination { ports replace-all-with { 22 } } } ALLOW-HTTPS { action accept description "Example HTTPS" ip-protocol tcp log yes destination { ports replace-all-with { 443 } } } DENY-ALL { action drop log yes place-after last } } }
 
 #. Put AFM into FW mode
 
-.. code-block:: shell
+    .. code-block:: shell
 
-modify sys db tm.fw.defaultaction value drop
+        modify sys db tm.fw.defaultaction value drop
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
     
 You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. 
 
-.. code-block:: shell
+    .. code-block:: shell
 
-create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
-create security nat policy OUTBOUND-PAT rules replace-all-with { RFC-1918-OUTBOUND-PAT { source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } translation { source OUTBOUND-PAT } } }
-create security firewall policy PUBLIC-SELF rules replace-all-with { ALLOW-ESP { ip-protocol esp action accept } ALLOW-IKE { ip-protocol udp destination { ports add { 500 } } action accept } ALLOW-NAT-T { ip-protocol udp destination { ports add { 4500 } } action accept } }
-create security firewall policy OUTBOUND-FORWARDING rules replace-all-with { OUTBOUND-ALLOW { action accept log yes source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } source { vlans replace-all-with { internal } } } }
-create security firewall policy DNS_CACHE { rules replace-all-with { ALLOW-DNS-UDP { action accept ip-protocol udp log yes place-before first destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } ALLOW-DNS-TCP { action accept ip-protocol tcp log yes destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } } }
+        create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
+        create security nat policy OUTBOUND-PAT rules replace-all-with { RFC-1918-OUTBOUND-PAT { source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } translation { source OUTBOUND-PAT } } }
+        create security firewall policy PUBLIC-SELF rules replace-all-with { ALLOW-ESP { ip-protocol esp action accept } ALLOW-IKE { ip-protocol udp destination { ports add { 500 } } action accept } ALLOW-NAT-T { ip-protocol udp destination { ports add { 4500 } } action accept } }
+        create security firewall policy OUTBOUND-FORWARDING rules replace-all-with { OUTBOUND-ALLOW { action accept log yes source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } source { vlans replace-all-with { internal } } } }
+        create security firewall policy DNS_CACHE { rules replace-all-with { ALLOW-DNS-UDP { action accept ip-protocol udp log yes place-before first destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } ALLOW-DNS-TCP { action accept ip-protocol tcp log yes destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } } }
 
 #. Attach AFM Policies to Self IP's
 
-.. code-block:: shell
+    .. code-block:: shell
 
-modify net self self_2nic fw-enforced-policy PUBLIC-SELF
+        modify net self self_2nic fw-enforced-policy PUBLIC-SELF
         
 #. Attach AFM Policy to DNS Cache VIP
 
-.. code-block:: shell
+    .. code-block:: shell
     
-modify ltm virtual DNS_CACHE_UDP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
-modify ltm virtual DNS_CACHE_TCP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
+        modify ltm virtual DNS_CACHE_UDP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
+        modify ltm virtual DNS_CACHE_TCP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
 
 #. Configure forwarding virtual servers for outbound traffic and attach AFM Policies/NAT Policies where applicable
 
-.. code-block:: shell
+    .. code-block:: shell
 
-create ltm virtual VS-FORWARDING-OUTBOUND destination 0.0.0.0:any ip-forward vlans replace-all-with { internal } vlans-enabled profiles replace-all-with { fastL4 } fw-enforced-policy OUTBOUND-FORWARDING security-nat-policy { policy OUTBOUND-PAT } security-log-profiles add { AFM-LOCAL }
+        create ltm virtual VS-FORWARDING-OUTBOUND destination 0.0.0.0:any ip-forward vlans replace-all-with { internal } vlans-enabled profiles replace-all-with { fastL4 } fw-enforced-policy OUTBOUND-FORWARDING security-nat-policy { policy OUTBOUND-PAT } security-log-profiles add { AFM-LOCAL }
 
 #. Change Azure VNET routing, enable forwarding, etc and test basic configuration.
 

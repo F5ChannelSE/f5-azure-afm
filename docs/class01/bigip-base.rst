@@ -2,15 +2,15 @@ Configure BIG-IP Base Configuration
 ===================================
 
 #. Connect to BIG-IP TMOS CLI
-- ssh azureuser@<f5student#bigip-mgmt-pip>
-- password: ChangeMeNow123!
+    - ssh azureuser@<f5student#bigip-mgmt-pip>
+    - password: ChangeMeNow123!
 
 #. Configure SELF IP's to allow for VPN termination
 
-.. code-block:: shell
+    .. code-block:: shell
 
-modify net self self_2nic allow-service replace-all-with { 50:0 udp:500 udp:4500 }
-modify net self self_3nic allow-service none
+        modify net self self_2nic allow-service replace-all-with { 50:0 udp:500 udp:4500 }
+        modify net self self_3nic allow-service none
 
 #. Configure DB keys to allow Azure link local DNS and IP VPN termination
 

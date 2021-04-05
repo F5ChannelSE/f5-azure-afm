@@ -84,7 +84,7 @@ Configure BIG-IP Base Configuration
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
     
-You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. 
+    You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. 
 
     .. code-block:: shell
 

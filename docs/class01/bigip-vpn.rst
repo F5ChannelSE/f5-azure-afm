@@ -55,8 +55,8 @@ modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
 #. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. 
 .. code-block:: shell
 
-create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
-create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
+    create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
+    create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
 
 #. Create LTM Pools for SSH traffic
 

@@ -24,8 +24,8 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 #. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace  <INTERNAL SELF> with the IP below where indicated.
 
-    .. image:: ./images/selfips.png
-       :scale: 200
+    .. image:: ./images/selfip.png
+    
 
     .. code-block:: shell
 
@@ -55,8 +55,8 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
     
     Confirm these two virtual servers we created on the firewall.
 
-    .. image:: ./images/dnscachetcpudp.png
-       :scale: 200
+    .. image:: ./images/dnscache.png
+    
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
 
@@ -93,13 +93,17 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
     
     View the changed profile
+
+    .. code-block:: shell 
     
      list security log profile AFM-LOCAL
 
             
+    
     Your output should look like the image below.
 
     .. image:: ./images/loggingprofile.png
+
 
 #. Configure MGMT Port AFM Rules.  This will allow SSH and HTTPS to the MGMT address and deny everything else.
 
@@ -123,7 +127,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
     Replace <ADDITIONAL PUBLIC IP FOR PAT> with the appropriate address
 
-    
+
     .. code-block:: shell
 
         create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
@@ -167,7 +171,15 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 #. Change Azure VNET routing, enable forwarding, etc and test basic configuration.
 
-Created UDR 0.0.0.0/0 to AFM Internal Self IP, Confirmed Ping from App server in Internal
+You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP, then you will test the configuration with Ping from both App servers.
+
+    .. image:: ./images/azureroute0.png
+
+    .. image:: ./images/azureroute1.png
+
+    .. image:: ./images/azureroute.png
+
+    
 
 Demonstrate Egress filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -25,7 +25,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 #. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace  <INTERNAL SELF> with the IP below where indicated.
 
     .. image:: ./images/selfips.png
- 
+        :scale: 200 %
 
     .. code-block:: shell
 

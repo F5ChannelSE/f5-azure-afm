@@ -121,7 +121,9 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
     .. image:: ./images/pipaddresses.png
 
+    Replace <ADDITIONAL PUBLIC IP FOR PAT> with the appropriate address
 
+    
     .. code-block:: shell
 
         create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }

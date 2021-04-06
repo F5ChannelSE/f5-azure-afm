@@ -40,6 +40,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
         create ltm pool AZURE_VNET_DNS { members replace-all-with { 168.63.129.16:53 } monitor tcp_half_open }
 
     .. code-block:: shell
+        
         create ltm virtual DNS_CACHE_TCP { destination <INTERNAL SELF>:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { f5-tcp-progressive {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
         
     .. code-block:: shell
@@ -63,12 +64,12 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
         modify security log profile global-network nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } }
 
     
-        .. code-block:: shell
+    .. code-block:: shell
 
         list security log profile global-network
     
     
-      Your configuration should match the image below.
+    Your configuration should match the image below.
 
     .. image:: ./images/globalnetwork.png
 

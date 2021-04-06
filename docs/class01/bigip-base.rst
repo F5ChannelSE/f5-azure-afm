@@ -1,7 +1,7 @@
 Configure BIG-IP Base Configuration
 ===================================
 
-In this module of the lab, we will be configuration the BIG-IP Advanced Firewall Manager (AFM) with the initial network configuration. Additionally, we will configure the AFM with NAT policies to allow the internal application servers to communicate to the Internet.
+In this module of the lab, we will be configuring the BIG-IP Advanced Firewall Manager (AFM) with the initial network configuration. Additionally, we will configure the AFM with NAT policies to allow the internal application servers to communicate to the Internet.
 
 #. Connect to BIG-IP TMOS CLI
     - ssh azureuser@<f5student#bigip-mgmt-pip>
@@ -27,10 +27,24 @@ In this module of the lab, we will be configuration the BIG-IP Advanced Firewall
     .. code-block:: shell
 
         create ltm dns cache resolver DNS_CACHE route-domain 0
+    
+    .. code-block:: shell
+
         create ltm profile dns DNS_CACHE { cache DNS_CACHE enable-cache yes enable-dns-express no enable-gtm no use-local-bind no }
+
+    .. code-block:: shell
+
         create ltm pool AZURE_VNET_DNS { members replace-all-with { 168.63.129.16:53 } monitor tcp_half_open }
+
+    .. code-block:: shell
         create ltm virtual DNS_CACHE_TCP { destination <INTERNAL SELF>:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { f5-tcp-progressive {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+        
+    .. code-block:: shell
+
         create ltm virtual DNS_CACHE_UDP { destination <INTERNAL SELF>:53 ip-protocol udp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+    
+    .. code-block:: shell
+        
         create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { <INTERNAL SELF>:53 } } } }
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.

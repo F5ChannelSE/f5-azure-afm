@@ -62,9 +62,9 @@ create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
 
 .. code-block:: shell
 
-create ltm pool RD1_SSH members replace-all-with { 10.0.3.5%1:22 }
-create ltm pool APP1_SSH members replace-all-wtih { <APP1 IP>:22 }
-create ltm pool APP2_SSH members replace-all-wtih { <APP2 IP>:22 }
+    create ltm pool RD1_SSH members replace-all-with { 10.0.3.5%1:22 }
+    create ltm pool APP1_SSH members replace-all-wtih { <APP1 IP>:22 }
+    create ltm pool APP2_SSH members replace-all-wtih { <APP2 IP>:22 }
 
 #. Create FW Policy
 
@@ -74,11 +74,11 @@ create ltm pool APP2_SSH members replace-all-wtih { <APP2 IP>:22 }
 
 #. Create VIP 
 
-create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.x:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+    create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.x:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
-create ltm virtual VS_APP1_SSH-RD1 destination 172.31.x.10%1 pool APP1_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+    create ltm virtual VS_APP1_SSH-RD1 destination 172.31.x.10%1 pool APP1_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
-create ltm virtual VS_APP2_SSH-RD1 destination 172.31.x.11%1 pool APP2_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+    create ltm virtual VS_APP2_SSH-RD1 destination 172.31.x.11%1 pool APP2_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
 #. Validate solution 
 

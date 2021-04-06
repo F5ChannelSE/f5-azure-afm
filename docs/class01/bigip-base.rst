@@ -117,6 +117,11 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
     
     You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. Get the ip from the table above.
 
+    The image below will show you where to find the IPs in addition to the table at the beginning
+
+    .. image:: ./images/pipaddresses.png
+
+
     .. code-block:: shell
 
         create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }

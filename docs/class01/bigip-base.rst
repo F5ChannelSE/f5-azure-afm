@@ -130,6 +130,8 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
     Replace <ADDITIONAL PUBLIC IP FOR PAT> with the appropriate address
 
 
+   
+   
     .. code-block:: shell
 
         create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
@@ -175,6 +177,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP, then you will test the configuration with Ping from both App servers.
 
+
     .. image:: ./images/azureroute0.png
 
     .. image:: ./images/azureroute1.png
@@ -186,13 +189,32 @@ You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self I
 Demonstrate Egress filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Modify AFM to block outbound access
+#. Modify the AFM to block outbound access
 
     .. code-block:: shell
 
         modify security firewall policy OUTBOUND-FORWARDING rules none
 
-#. Confirm outbound access is now blocked from APP servers, show logs in AFM GUI
+#. You will confirm outbound access is now blocked from the APP servers.  You need to serial console into the app servers screenshots below.
+
+
+    .. image:: ./images/console1.png
+
+    .. image:: ./images/console2.png
+
+    .. image:: ./images/console3.png
+
+    .. image:: ./images/console4.png
+
+    .. image:: ./images/console5.png
+
+    .. image:: ./images/console6.png
+
+    .. image:: ./images/console7.png
+
+    .. image:: ./images/console8.png
+
+    Now test the blocking configuration
 
     .. code-block:: shell
 
@@ -207,6 +229,14 @@ Demonstrate Egress filtering
         modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-GOOGLE.COM { ip-protocol tcp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { fqdns add { google.com www.google.com } ports add { 80 443 } } place-after first action accept log yes } }
         modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
         
+
+    Retest the configuration and you now should be able to ping.
+
+    .. code-block:: shell
+
+        ping -c google.com
+        
+
 #. Configure Server to use DNS Caching VIP 
     You will need the internal IP of the AFM and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverate our F5 DNS cache so that AFM FQDN resolution works correctly. 
     

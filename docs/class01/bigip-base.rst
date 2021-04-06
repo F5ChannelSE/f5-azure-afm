@@ -27,6 +27,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
     .. image:: ./images/selfip.png
     
 
+    
     .. code-block:: shell
 
         create ltm dns cache resolver DNS_CACHE route-domain 0
@@ -53,7 +54,8 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
     
     
-    Confirm these two virtual servers we created on the firewall.
+    
+  Confirm these two virtual servers we created on the firewall.
 
     .. image:: ./images/dnscache.png
     
@@ -71,7 +73,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
         modify security log profile global-network nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } }
 
     
-    Verify the changes were made to the profile
+  Verify the changes were made to the profile
     
     .. code-block:: shell
 
@@ -177,9 +179,9 @@ You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self I
 
     .. image:: ./images/azureroute1.png
 
-    .. image:: ./images/azureroute.png
+    .. image:: ./images/azureroute2.png
 
-    
+
 
 Demonstrate Egress filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

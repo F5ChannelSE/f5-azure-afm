@@ -22,9 +22,10 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
         modify sys db ipsec.if.checkpolicy { value "disable" }
         modify sys db connection.vlankeyed { value "disable" }
 
-#. Configure local DNS cache for both AFM and Servers (You will need the IP for self_3nic/Internal VNET for the DNS Caching VIP)
+#. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace  <INTERNAL SELF> with the IP below where indicated.
 
-
+    .. image:: ./images/selfips.png
+ 
 
     .. code-block:: shell
 

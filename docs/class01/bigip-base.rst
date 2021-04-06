@@ -51,6 +51,11 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
         
         create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { <INTERNAL SELF>:53 } } } }
 
+    Confirm these two virtual servers we created on the firewall.
+
+    .. image:: ./images/dnscachetcpudp.png
+       :scale: 200 %
+
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
 
     .. code-block:: shell

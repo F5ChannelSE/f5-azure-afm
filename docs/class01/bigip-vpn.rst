@@ -53,6 +53,7 @@ modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
     create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
 
 #. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. 
+
 .. code-block:: shell
 
     create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
@@ -73,6 +74,8 @@ modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
     create security firewall policy SSH_VIP rules replace-all-with { ALLOW-SSH { action accept ip-protocol tcp destination { ports add { 22 } } } }
 
 #. Create VIP 
+
+.. code-block:: shell
 
     create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.x:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 

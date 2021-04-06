@@ -24,7 +24,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 #. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace  <INTERNAL SELF> with the IP below where indicated.
 
-    .. image:: ../images/selfips.png
+    .. image:: ./images/selfips.png
        :scale: 200
 
     .. code-block:: shell
@@ -52,9 +52,10 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
         create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { <INTERNAL SELF>:53 } } } }
 
     
+    
     Confirm these two virtual servers we created on the firewall.
 
-    .. image:: ../images/dnscachetcpudp.png
+    .. image:: ./images/dnscachetcpudp.png
        :scale: 200
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
@@ -70,9 +71,12 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
         modify security log profile global-network nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } }
 
     
+    Verify the changes were made to the profile
+    
     .. code-block:: shell
 
         list security log profile global-network
+    
     
     
     Your configuration should match the image below.
@@ -87,6 +91,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
         create security log profile AFM-LOCAL { nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } } }
 
+    
     View the changed profile
     
      list security log profile AFM-LOCAL
@@ -96,13 +101,13 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
     .. image:: ./images/loggingprofile.png
 
-#. Configure MGMT Port AFM Rules
+#. Configure MGMT Port AFM Rules.  This will allow SSH and HTTPS to the MGMT address and deny everything else.
 
     .. code-block:: shell
 
         modify security firewall management-ip-rules { rules replace-all-with { ALLOW-SSH { action accept place-before first ip-protocol tcp log yes description "Example SSH" destination { ports replace-all-with { 22 } } } ALLOW-HTTPS { action accept description "Example HTTPS" ip-protocol tcp log yes destination { ports replace-all-with { 443 } } } DENY-ALL { action drop log yes place-after last } } }
 
-#. Put AFM into FW mode
+#. Switch the F5 from ADC mode into Firewall mode
 
     .. code-block:: shell
 
@@ -110,15 +115,29 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
     
-    You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. 
+    You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. Get the ip from the table above.
 
     .. code-block:: shell
 
         create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
+        
+    .. code-block:: shell   
+        
         create security nat policy OUTBOUND-PAT rules replace-all-with { RFC-1918-OUTBOUND-PAT { source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } translation { source OUTBOUND-PAT } } }
+        
+    .. code-block:: shell   
+    
         create security firewall policy PUBLIC-SELF rules replace-all-with { ALLOW-ESP { ip-protocol esp action accept } ALLOW-IKE { ip-protocol udp destination { ports add { 500 } } action accept } ALLOW-NAT-T { ip-protocol udp destination { ports add { 4500 } } action accept } }
+        
+    .. code-block:: shell  
+        
         create security firewall policy OUTBOUND-FORWARDING rules replace-all-with { OUTBOUND-ALLOW { action accept log yes source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } source { vlans replace-all-with { internal } } } }
+        
+    .. code-block:: shell   
+        
         create security firewall policy DNS_CACHE { rules replace-all-with { ALLOW-DNS-UDP { action accept ip-protocol udp log yes place-before first destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } ALLOW-DNS-TCP { action accept ip-protocol tcp log yes destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } } }
+
+
 
 #. Attach AFM Policies to Self IP's
 

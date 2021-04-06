@@ -102,7 +102,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
             
     
-    Your output should look like the image below.
+    - Your output should look like the image below.
 
     .. image:: ./images/loggingprofile.png
 
@@ -121,13 +121,13 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
     
-    You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. Get the ip from the table above.
+    - You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. Get the ip from the table above.
 
-    The image below will show you where to find the IPs in addition to the table at the beginning
+    - The image below will show you where to find the IPs in addition to the table at the beginning
 
     .. image:: ./images/pipaddresses.png
 
-    Replace <ADDITIONAL PUBLIC IP FOR PAT> with the appropriate address
+    - Replace <ADDITIONAL PUBLIC IP FOR PAT> with the appropriate address
 
 
    
@@ -175,7 +175,7 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 #. Change Azure VNET routing, enable forwarding, etc and test basic configuration.
 
-You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP, then you will test the configuration with Ping from both App servers.
+    - You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP, then you will test the configuration with Ping from both App servers.
 
 
     .. image:: ./images/azureroute0.png
@@ -230,7 +230,7 @@ Demonstrate Egress filtering
 
         ping -c 3 google.com
 
-    - should result in 100% packet loss
+    - This should result in 100% packet loss
 
 #. Whitelist specific hosts/ports/protocols/FQDN's (i.e. allow 80/443 to google.com and ICMP to CloudFlare DNS)
 
@@ -240,7 +240,7 @@ Demonstrate Egress filtering
         modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
         
 
-    Retest the configuration and you now should be able to ping.
+    - Retest the configuration and you now should be able to ping.
 
     .. code-block:: shell
 

@@ -48,7 +48,7 @@ Deploy said VPN
     create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.220.101 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <Public Self IP Actual Public> peers-id-type address peers-id-value 52.158.220.101 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
     create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_901_TS defaults-from ipsec
     create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address <Local Public Self IP Azure Private IP> remote-address 52.158.220.101
-modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
+    modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
     create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
     create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
 

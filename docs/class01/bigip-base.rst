@@ -197,34 +197,34 @@ Demonstrate Egress filtering
 
 #. You will confirm outbound access is now blocked from each the APP servers.  You need to serial console into the app servers to ping from them. Screenshots and details below.
 
-From the Resource Group pick either app1 or app2
+    - From the Resource Group pick either app1 or app2
 
 
     .. image:: ./images/console2.png
 
-In the left pane, select Serial Console, if the image is like below you need to enable Boot Diagnostics
+    - In the left pane, select Serial Console, if the image is like below you need to enable Boot Diagnostics
 
     .. image:: ./images/console4.png
 
-Select Disaster Recovery to enable the serial console and the storage account
+    - Select Disaster Recovery to enable the serial console and the storage account
 
     .. image:: ./images/console3.png
 
-Select Boot Diagnostics
+    - Select Boot Diagnostics
 
     .. image:: ./images/console5.png
 
-The select the storage account for your Resource Group
+    - Then select the storage account for your Resource Group
 
     .. image:: ./images/console6.png
 
-    Back to Serial Console
+    - Back to Serial Console
 
     .. image:: ./images/console7.png
 
     .. image:: ./images/console8.png
 
-    Now test the blocking configuration
+    - Now test the blocking configuration
 
     .. code-block:: shell
 
@@ -248,7 +248,8 @@ The select the storage account for your Resource Group
 
 
 #. Configure Server to use DNS Caching VIP 
-    You will need the internal IP of the AFM and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverate our F5 DNS cache so that AFM FQDN resolution works correctly. 
+    
+    - You will need the internal IP of the AFM and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverate our F5 DNS cache so that AFM FQDN resolution works correctly. 
     
     .. code-block:: shell
     

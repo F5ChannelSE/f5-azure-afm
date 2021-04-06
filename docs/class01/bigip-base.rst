@@ -24,6 +24,8 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
 #. Configure local DNS cache for both AFM and Servers (You will need the IP for self_3nic/Internal VNET for the DNS Caching VIP)
 
+
+
     .. code-block:: shell
 
         create ltm dns cache resolver DNS_CACHE route-domain 0
@@ -59,64 +61,18 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
     
         modify security log profile global-network nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } }
 
-    .. code-block:: shell
-
-        modify security log profile global-network nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } }
- 
-    .. code-block:: shell
+    
+        .. code-block:: shell
 
         list security log profile global-network
     
-    Should look like this:
-
-    security log profile global-network {
-                    built-in enabled
-                    description "Default logging profile for network events"
-                    nat {
-                        end-inbound-session enabled
-                        end-outbound-session {
-                            action enabled
-                            elements { destination }
-                        }
-                        errors enabled
-                        log-publisher local-db-publisher
-                        log-subscriber-id enabled
-                        quota-exceeded enabled
-                        start-inbound-session enabled
-                        start-outbound-session {
-                            action enabled
-                            elements { destination }
-                        }
-                    }
-                    network {
-                        global-network {
-                            filter {
-                                log-acl-match-accept enabled
-                                log-acl-match-drop enabled
-                                log-acl-match-reject enabled
-                                log-geo-always enabled
-                                log-ip-errors enabled
-                                log-tcp-errors enabled
-                                log-tcp-events enabled
-                                log-translation-fields enabled
-                                log-user-always enabled
-                                log-uuid-field enabled
-                            }
-                            publisher local-db-publisher
-                        }
-                    }
-                    protocol-dns {
-                        global-dns { }
-                    }
-                }
     
-
-    
-    It should match the image below.
+      Your configuration should match the image below.
 
     .. image:: ./images/globalnetwork.png
 
 #. Logging Profile :
+    
     Create a new logging profile called AFM-LOCAL
 
     .. code-block:: shell
@@ -125,56 +81,10 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
     View the changed profile
     
-    .. code-block:: shell
-
-     create security log profile AFM-LOCAL { nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } } }
-
-    .. code-block:: shell
-     
      list security log profile AFM-LOCAL
 
-    Should look like this:
-
-    security log profile AFM-LOCAL {
-    nat {
-        end-inbound-session enabled
-        end-outbound-session {
-            action enabled
-            elements { destination }
-        }
-        errors enabled
-        log-publisher local-db-publisher
-        log-subscriber-id enabled
-        quota-exceeded enabled
-        start-inbound-session enabled
-        start-outbound-session {
-            action enabled
-            elements { destination }
-        }
-    }
-    network {
-        AFM-LOCAL {
-            filter {
-                log-acl-match-accept enabled
-                log-acl-match-drop enabled
-                log-acl-match-reject enabled
-                log-geo-always enabled
-                log-ip-errors enabled
-                log-tcp-errors enabled
-                log-tcp-events enabled
-                log-translation-fields enabled
-                log-user-always enabled
-                log-uuid-field enabled
-            }
-            publisher local-db-publisher
-        }
-    }
-}
-
-
-
-    
-    The output should look like the image below.
+            
+    Your output should look like the image below.
 
     .. image:: ./images/loggingprofile.png
 

@@ -15,6 +15,16 @@ Plan VPN Deployment to outside VNET using an Azure VPN gateway on the remote end
 
 #. Discuss how the virtuals will work to get traffic flowing for desired services.
     - The virtuals with cross RD snat applied allow the F5 to broker connections between overlapping IP space by virtual of being able to manipulate src/dst IP's between the RD's
+    
+#. Required Information 
+    - Remote VPN End Point: 52.158.220.101
+    - Local Instance External Private Self IP : 10.0.2.x
+    - Local Instance Public Self IP : <Public IP Mapped to 10.0.2.x in Azure>  - This needs to be provided to the Lab Proctor to stage the remote side of the VPN tunnel.
+    - PSK : "RandomGarbage123"
+    - Remote Server : 10.0.3.5
+    - Internal VIP/SNAT Pool IP : <Allocate addition 10.0.3.x to BIGIP Internal NIC in Azure Console>
+    - APP1 Internal IP : 10.0.3.x
+    - APP2 Internal IP : 10.0.3.x
 
 Deploy said VPN
 ~~~~~~~~~~~~~~~
@@ -34,40 +44,52 @@ Deploy said VPN
 .. code-block:: shell
 
     create net ipsec ipsec-policy VPN_IPSEC_POLICY { protocol esp mode interface ike-phase2-auth-algorithm sha256 ike-phase2-encrypt-algorithm aes256 ike-phase2-perfect-forward-secrecy modp2048 ike-phase2-lifetime 1440 ike-phase2-lifetime-kilobytes 0 }
-    create net ipsec traffic-selector VPN_901_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
-    create net ipsec ike-peer VPN_PEER_901 { remote-address 52.226.137.226 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value 138.91.227.212 peers-id-type address peers-id-value 52.226.137.226 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_901_TS } nat-traversal on  }
-    create net tunnels ipsec IPSEC_901_PROFILE traffic-selector VPN_901_TS defaults-from ipsec
-    create net tunnels tunnel IPSEC_901_VTI profile IPSEC_901_PROFILE local-address 10.0.2.4 remote-address 52.226.137.226
-    modify net route-domain 1 vlans add { IPSEC_901_VTI }
-    create net self IPSEC_901_VTI_SELF { address 192.168.100.2%1/24 allow-service none vlan IPSEC_901_VTI }
-    create net route IPSEC_901_VTI_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 192.168.100.1%1 }
+    create net ipsec traffic-selector VPN_RD1_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
+    create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.220.101 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <Public Self IP Actual Public> peers-id-type address peers-id-value 52.158.220.101 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
+    create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_901_TS defaults-from ipsec
+    create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address <Local Public Self IP Azure Private IP> remote-address 52.158.220.101
+    modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
+    create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
+    create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
 
-#. Assign additional Azure IP’s where needed (SNAT/Internal VIP’s/Etc).  ADDED additional internal IP called VIP1 for internal VIP to send traffic to remote VPN resource
-
-.. code-block:: shell
-
-    create ltm snatpool RD1_SNATPOOL { members add { 192.168.100.10%1 } }
-    create ltm pool RD1_POOL members replace-all-with { 10.0.3.5%1:443 }
-    create ltm virtual VS_CROSS_RD destination 10.0.3.6:443 pool RD1_POOL source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy HTTP_S-VIP
-
-#. Create firewall rules/apply firewall rules
+#. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. 
 
 .. code-block:: shell
 
-    create security firewall policy HTTP_S-VIP rules replace-all-with { ALLOW-HTTP_S { action accept ip-protocol tcp destination { ports add { 80 443 } } } }
+    create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
+    create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
 
-#. Create VIP's/Pools/SNAT's/etc
-
-.. code-block:: shell
-
-    create ltm virtual VS_CROSS_RD destination 10.0.3.6:443 pool RD1_POOL source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy HTTP_S-VIP
-
-#. Validate solution (Can servers communicate over the desired channels using our cross RD VIP's) - USED SSH FOR VALIDATION AS VM HAD NO WEBSERVER RUNNING
+#. Create LTM Pools for SSH traffic
 
 .. code-block:: shell
 
-    nc -v 10.0.3.6 22
+    create ltm pool RD1_SSH members replace-all-with { 10.0.3.5%1:22 }
+    create ltm pool APP1_SSH members replace-all-wtih { <APP1 IP>:22 }
+    create ltm pool APP2_SSH members replace-all-wtih { <APP2 IP>:22 }
+
+#. Create FW Policy
+
+.. code-block:: shell
+
+    create security firewall policy SSH_VIP rules replace-all-with { ALLOW-SSH { action accept ip-protocol tcp destination { ports add { 22 } } } }
+
+#. Create VIP 
+
+.. code-block:: shell
+
+    create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.x:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+
+    create ltm virtual VS_APP1_SSH-RD1 destination 172.31.x.10%1 pool APP1_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+
+    create ltm virtual VS_APP2_SSH-RD1 destination 172.31.x.11%1 pool APP2_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+
+#. Validate solution 
+
+.. code-block:: shell
+
+    From APP1 or APP2
+    nc -v <Internal VIP IP> 22
     
-    - SSH to App server to show successful connection
-
+    - Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
+    
 #. Wrap up and delete resource group 

@@ -180,7 +180,11 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
 
     .. image:: ./images/azureroute1.png
 
-    .. image:: ./images/azureroute2.png
+    .. image:: ./images/azureroute4.png
+
+    .. image:: ./images/azureroute5.png
+    
+    .. image:: ./images/azureroute6.png
 
 
 
@@ -224,6 +228,10 @@ Demonstrate Egress filtering
     .. code-block:: shell
 
         ping -c 3 google.com
+        ping -c 3 1.1.1.1
+
+    .. image:: ./images/pinggoogle.png
+    
 
     - This should result in 100% packet loss
 
@@ -240,6 +248,9 @@ Demonstrate Egress filtering
     .. code-block:: shell
 
         ping -c google.com
+        ping -c 1.1.1.1
+
+    .. image:: ./images/pingcloudflare.png
 
 
 #. Configure Server to use DNS Caching VIP 

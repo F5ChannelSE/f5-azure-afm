@@ -65,6 +65,8 @@ BIG-IP Network Addressing
 
     .. image:: ./images/bigipnetworkinfo.png
 
+    .. image:: ./images/bigipnetworkinfo.png
+
 #. Connect to BIG-IP TMOS CLI
     - ssh azureuser@<f5student#bigip-mgmt-pip>
     - password: ChangeMeNow123!

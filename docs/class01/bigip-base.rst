@@ -58,8 +58,6 @@ In this module of the lab, we will be configuring the BIG-IP Advanced Firewall M
   Confirm these two virtual servers we created on the firewall.
 
     .. image:: ./images/dnscache.png
-    
-
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
 
     .. code-block:: shell
@@ -206,9 +204,6 @@ Demonstrate Egress filtering
 
     .. image:: ./images/console4.png
 
-    - Select Disaster Recovery to enable the serial console and the storage account
-
-    .. image:: ./images/console3.png
 
     - Select Boot Diagnostics
 

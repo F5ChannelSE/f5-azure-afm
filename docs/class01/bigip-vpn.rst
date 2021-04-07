@@ -17,7 +17,7 @@ Plan VPN Deployment to outside VNET using an Azure VPN gateway on the remote end
     - The virtuals with cross RD snat applied allow the F5 to broker connections between overlapping IP space by virtual of being able to manipulate src/dst IP's between the RD's
     
 #. Required Information 
-    - Remote VPN End Point: 52.158.220.101
+    - Remote VPN End Point: 52.158.219.164
     - Local Instance External Private Self IP : 10.0.2.x
     - Local Instance Public Self IP : <Public IP Mapped to 10.0.2.x in Azure>  - This needs to be provided to the Lab Proctor to stage the remote side of the VPN tunnel.
     - PSK : "RandomGarbage123"
@@ -51,9 +51,9 @@ Deploy said VPN
 
     create net ipsec ipsec-policy VPN_IPSEC_POLICY { protocol esp mode interface ike-phase2-auth-algorithm sha256 ike-phase2-encrypt-algorithm aes256 ike-phase2-perfect-forward-secrecy modp2048 ike-phase2-lifetime 1440 ike-phase2-lifetime-kilobytes 0 }
     create net ipsec traffic-selector VPN_RD1_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
-    create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.220.101 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <Public Self IP Actual Public> peers-id-type address peers-id-value 52.158.220.101 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
-    create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_901_TS defaults-from ipsec
-    create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address <Local Public Self IP Azure Private IP> remote-address 52.158.220.101
+    create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.219.164 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <Public Self IP Actual Public> peers-id-type address peers-id-value 52.158.219.164 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
+    create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_RD1_TS defaults-from ipsec
+    create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address <Local Public Self IP Azure Private IP> remote-address 52.158.219.164
     modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
     create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
     create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
@@ -69,9 +69,9 @@ Deploy said VPN
 
 .. code-block:: shell
 
-    create ltm pool RD1_SSH members replace-all-with { 10.0.3.5%1:22 }
-    create ltm pool APP1_SSH members replace-all-wtih { <APP1 IP>:22 }
-    create ltm pool APP2_SSH members replace-all-wtih { <APP2 IP>:22 }
+    create ltm pool RD1_SSH members replace-all-with { 10.0.3.5%1:22 } monitor tcp_half_open
+    create ltm pool APP1_SSH members replace-all-with { <APP1 IP>:22 } monitor tcp_half_open
+    create ltm pool APP2_SSH members replace-all-with { <APP2 IP>:22 } monitor tcp_half_open
 
 #. Create FW Policy
 
@@ -95,6 +95,7 @@ Deploy said VPN
 
     From APP1 or APP2
     nc -v <Internal VIP IP> 22
+    ssh azureuser@<Internal VIP IP>
     
     - Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
     

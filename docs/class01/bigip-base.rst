@@ -62,7 +62,7 @@ BIG-IP Network Addressing
       - 10.0.2.6
       - NAT target and pool (VPN)
 
-    Browse to bigip-ext->ip config to capture BIG-IP Networking info
+  Browse to bigip-ext->ip config to capture BIG-IP Networking info
 
 
 #. Connect to BIG-IP TMOS CLI

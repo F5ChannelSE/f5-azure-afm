@@ -248,35 +248,8 @@ Demonstrate Egress filtering
     
     .. code-block:: shell
     
-        vi /etc/systemd/resolved.conf
-    
-    #  This file is part of systemd.
-    #
-    #  systemd is free software; you can redistribute it and/or modify it
-    #  under the terms of the GNU Lesser General Public License as published by
-    #  the Free Software Foundation; either version 2.1 of the License, or
-    #  (at your option) any later version.
-    #
-    # Entries in this file show the compile time defaults.
-    # You can change settings by editing this file.
-    # Defaults can be restored by simply deleting this file.
-    #
-    # See resolved.conf(5) for details
-                        
-    [Resolve]
-    DNS=<CHANGE THIS TO AFM DNS CACHE IP>
-    #FallbackDNS=
-    #Domains=
-    #LLMNR=no
-    #MulticastDNS=no
-    #DNSSEC=no
-    #Cache=yes
-    #DNSStubListener=yes
-    
-    .. code-block:: shell
-    
-        systemctl restart systemd-resolved.service
-    
+        sudo su -c 'echo "DNS=10.0.3.4" >> /etc/systemd/resolved.conf && systemctl restart systemd-resolved.service'  
+       
 
 #. Confirm whitelisting works as expected by testing from the APP servers , show logs in AFM gui to confirm 
 

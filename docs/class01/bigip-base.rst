@@ -3,6 +3,67 @@ Configure BIG-IP Base Configuration
 
 In this module of the lab, we will be configuring the BIG-IP Advanced Firewall Manager (AFM) with the initial network configuration. Additionally, we will configure the AFM with NAT policies to allow the internal application servers to communicate to the Internet.
 
+BIG-IP Network Addressing
+^^^^^^^^^^^^^^^^^^^^^^^^^
+.. list-table::
+    :widths: 20 20 20 20 20
+    :header-rows: 1
+    :stub-columns: 0
+
+    * - **Name**
+      - **BIG-IP Interface**
+      - **Azure Interface**
+      - **IP Address**
+      - **Note**
+    * - EXTERNAL SELF PRIVATE
+      - self_2nic
+      - f5vm01-self (Primary)
+      - 10.0.2.4
+      - local source for IPSEC
+    * - EXTERNAL SELF PUBLIC
+      - self_2nic
+      - 5vm01-self (Primary)
+      - 
+      - used as IPSEC ID
+    * - OUTBOUND-IP PAT PRIVATE
+      - none
+      - ext-ipconfig0
+      - 10.0.2.10
+      - Egress NAT (Overload) in AFM
+    * - OUTBOUND-IP PAT PUBLIC
+      - none
+      - ext-ipconfig0
+      - 
+      - source IP egressing Azure
+    * - INBOUND-IP PAT PRIVATE
+      - none
+      - ext-ipconfig1
+      - 10.0.2.11
+      - ingress NAT (PAT) in AFM
+    * - INBOUND-IP PAT PUBLIC
+      - none
+      - ext-ipconfig1
+      - 
+      - ingress destination IP in Azure
+    * - INTERNAL SELF
+      - self_3nic
+      - f5vm01-ipconfig1
+      - 10.0.3.4
+      - local source for IPSEC
+    * - App1
+      - none
+      - app1-ipconfig1 (Primary)
+      - 10.0.2.5
+      - NAT target and pool (VPN)
+    * - App2
+      - none
+      - app2-ipconfig1 (Primary)
+      - 10.0.2.6
+      - NAT target and pool (VPN)
+
+- Browse to bigip-ext->ip config to capture BIG-IP Networking info
+    .. image:: ./images/bigipnetworkinfo.png
+
 #. Connect to BIG-IP TMOS CLI
     - ssh azureuser@<f5student#bigip-mgmt-pip>
     - password: ChangeMeNow123!
@@ -274,7 +335,15 @@ Demonstrate Egress filtering
 Demonstrate Ingress NAT via AFM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Remove any current Public IP's from the Servers, Ensure they do not have any NSG's attached, ensure the External interface of the F5 does not have any NSG's attached. 
+#. Ensure that the Public Interface NSG of the F5 Instance has a firewall rule allowing all ports and protocols.
+
+    .. image:: ./images/forward1.png
+    .. image:: ./images/forward2.png
+    .. image:: ./images/forward3.png
+    .. image:: ./images/forward4.png
+    .. image:: ./images/forward5.png
+
+
 
 #. Configure inbound port mappings for SSH to both App servers (i.e. TCP/2022 to App1, TCP/2023 to App2)
 

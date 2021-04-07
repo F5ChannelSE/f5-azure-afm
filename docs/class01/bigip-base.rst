@@ -2,6 +2,7 @@ Configure BIG-IP Base Configuration
 ===================================
 
 In this module of the lab, we will be configuring the BIG-IP Advanced Firewall Manager (AFM) with the initial network configuration. Additionally, we will configure the AFM with NAT policies to allow the internal application servers to communicate to the Internet.
+test
 
 BIG-IP Network Addressing
 ^^^^^^^^^^^^^^^^^^^^^^^^^

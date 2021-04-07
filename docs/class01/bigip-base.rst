@@ -64,9 +64,6 @@ BIG-IP Network Addressing
 
     Browse to bigip-ext->ip config to capture BIG-IP Networking info
 
-    .. image:: ./images/bigipnetworkinfo.png
-
-    .. image:: ./images/bigipnetworkinfo.png
 
 #. Connect to BIG-IP TMOS CLI
     - ssh azureuser@<f5student#bigip-mgmt-pip>

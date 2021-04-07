@@ -62,6 +62,7 @@ BIG-IP Network Addressing
       - NAT target and pool (VPN)
 
 - Browse to bigip-ext->ip config to capture BIG-IP Networking info
+
     .. image:: ./images/bigipnetworkinfo.png
 
 #. Connect to BIG-IP TMOS CLI

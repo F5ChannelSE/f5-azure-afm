@@ -61,7 +61,7 @@ BIG-IP Network Addressing
       - 10.0.2.6
       - NAT target and pool (VPN)
 
-- Browse to bigip-ext->ip config to capture BIG-IP Networking info
+    Browse to bigip-ext->ip config to capture BIG-IP Networking info
 
     .. image:: ./images/bigipnetworkinfo.png
 
@@ -120,6 +120,7 @@ BIG-IP Network Addressing
   Confirm these two virtual servers we created on the firewall.
 
     .. image:: ./images/dnscache.png
+
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
 
     .. code-block:: shell

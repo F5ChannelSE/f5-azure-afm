@@ -32,6 +32,12 @@ Deploy said VPN
 #. Prep BIG-IP for VPN termination (Should be mostly completed after above steps)
     - Self IP Lock Down, sys db keys, Azure NSG rules, and AFM firewall policy should be set if the previous sections were completed correctly.
 
+
+    .. image:: ./images/vpn1.png
+    .. image:: ./images/vpn2.png
+    .. image:: ./images/vpn3.png
+    .. image:: ./images/vpn4.png
+
 #. Create RD1 for routed tunnel to exist inside of and disable strict isolation in RD0.
 
 .. code-block:: shell

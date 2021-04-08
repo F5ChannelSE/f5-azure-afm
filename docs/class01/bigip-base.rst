@@ -63,6 +63,9 @@ BIG-IP Network Addressing
 
 - Browse to bigip-ext->ip config to capture BIG-IP Networking info
 .. image:: ./images/bigipnetworkinfo.png
+.. image:: ./images/vpn2.png
+.. image:: ./images/vpn3.png
+.. image:: ./images/vpn4.png
 
 #. Connect to BIG-IP TMOS CLI
     - ssh azureuser@<f5student#bigip-mgmt-pip>
@@ -237,6 +240,11 @@ BIG-IP Network Addressing
 
     - You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP, then you will test the configuration with Ping from both App servers.
 
+    .. image:: ./images/azureroute0.png
+
+    .. image:: ./images/azureroute0.png
+
+    .. image:: ./images/azureroute0.png
 
     .. image:: ./images/azureroute0.png
 

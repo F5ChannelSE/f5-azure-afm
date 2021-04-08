@@ -66,11 +66,11 @@ BIG-IP Network Addressing
       - 10.0.2.6
       - NAT target and pool (VPN)
 
-- Browse to bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding
+- Browse to bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
 .. image:: ./images/bigipnetworkinfo.png
-- Browse to bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding
+- Browse to bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
 .. image:: ./images/vpn2.png
-- Add Secondary IP
+- Adding Secondary IP (VIP1)
 .. image:: ./images/vpn3.png
 .. image:: ./images/vpn4.png
 
@@ -113,15 +113,15 @@ BIG-IP Network Addressing
 
     .. code-block:: shell
         
-        create ltm virtual DNS_CACHE_TCP { destination <INTERNAL SELF>:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { f5-tcp-progressive {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+        create ltm virtual DNS_CACHE_TCP { destination 10.0.3.4:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { f5-tcp-progressive {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
         
     .. code-block:: shell
 
-        create ltm virtual DNS_CACHE_UDP { destination <INTERNAL SELF>:53 ip-protocol udp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+        create ltm virtual DNS_CACHE_UDP { destination 10.0.3.4:53 ip-protocol udp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
     
     .. code-block:: shell
         
-        create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { <INTERNAL SELF>:53 } } } }
+        create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { 10.0.3.4:53 } } } }
 
     
     
@@ -306,6 +306,14 @@ Demonstrate Egress filtering
 
     - This should result in 100% packet loss
 
+#. Configure the App Servers (APP1) and (APP2) to use the DNS Caching VIP 
+    
+    - You will need the internal IP of the AFM VIP (below 10.0.3.4) and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverage our F5 DNS cache so that AFM FQDN resolution works correctly. 
+    
+    .. code-block:: shell
+    
+        sudo su -c 'echo "DNS=10.0.3.4" >> /etc/systemd/resolved.conf && systemctl restart systemd-resolved.service'
+
 #. Whitelist specific hosts/ports/protocols/FQDN's (i.e. allow 80/443 to google.com and ICMP to CloudFlare DNS)
 
     .. code-block:: shell
@@ -323,14 +331,6 @@ Demonstrate Egress filtering
 
     .. image:: ./images/pingcloudflare.png
 
-
-#. Configure Server to use DNS Caching VIP 
-    
-    - You will need the internal IP of the AFM and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverate our F5 DNS cache so that AFM FQDN resolution works correctly. 
-    
-    .. code-block:: shell
-    
-        sudo su -c 'echo "DNS=10.0.3.4" >> /etc/systemd/resolved.conf && systemctl restart systemd-resolved.service'  
        
 
 #. Confirm whitelisting works as expected by testing from the APP servers , show logs in AFM gui to confirm 
@@ -364,8 +364,13 @@ Demonstrate Ingress NAT via AFM
     .. code-block:: shell
 
         create security nat destination-translation APP1-SSH { addresses replace-all-with { <APP-1 IP> { } } ports replace-all-with { 22 } type static-pat }
+
+    .. code-block:: shell
+
         create security nat destination-translation APP2-SSH { addresses replace-all-with { <APP-2 IP> { } } ports replace-all-with { 22 } type static-pat }
         
+    .. code-block:: shell
+
         create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }
 
 #. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS

@@ -4,6 +4,8 @@ Configure VPN Tunnel
 Plan VPN Deployment to outside VNET using an Azure VPN gateway on the remote end (IP Overlap Scenario)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. image:: .//images/netdiagram.png
+
 #. Discuss hard requirements (IKEv2 in VTI mode seems to work best with Azure currently)
     - In most F5 deployments IKEv2 is far more stable, and VTI's are the most reliable when it comes to interoperability/stability
 

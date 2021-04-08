@@ -346,9 +346,13 @@ Demonstrate Ingress NAT via AFM
 #. Ensure that the Public Interface NSG of the F5 Instance has a firewall rule allowing all ports and protocols.
 
     .. image:: ./images/forward1.png
+
     .. image:: ./images/forward2.png
+
     .. image:: ./images/forward3.png
+
     .. image:: ./images/forward4.png
+    
     .. image:: ./images/forward5.png
 
 

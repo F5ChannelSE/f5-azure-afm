@@ -288,7 +288,7 @@ Demonstrate Egress filtering
 
     .. image:: ./images/console2.png
 
-    - Back to Serial Console
+    - Navigate to Serial Console - and login
 
     .. image:: ./images/console7.png
 

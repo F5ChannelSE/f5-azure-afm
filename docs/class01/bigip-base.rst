@@ -263,6 +263,10 @@ BIG-IP Network Addressing
     
     .. image:: ./images/azureroute6.png
 
+#. Ping Google to ensure working config
+
+    .. code-block:: shell
+       ping -c 3 google.com
 
 
 Demonstrate Egress filtering
@@ -280,19 +284,6 @@ Demonstrate Egress filtering
 
 
     .. image:: ./images/console2.png
-
-    - In the left pane, select Serial Console, if the image is like below you need to enable Boot Diagnostics
-
-    .. image:: ./images/console4.png
-
-
-    - Select Boot Diagnostics
-
-    .. image:: ./images/console5.png
-
-    - Then select the storage account for your Resource Group
-
-    .. image:: ./images/console6.png
 
     - Back to Serial Console
 

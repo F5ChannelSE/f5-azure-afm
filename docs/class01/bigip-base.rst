@@ -247,21 +247,23 @@ BIG-IP Network Addressing
 
     - You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP, then you will test the configuration with Ping from both App servers.
 
-    .. image:: ./images/azureroute0.png
+    .. image:: ./images/azureroute7.png
 
-    .. image:: ./images/azureroute0.png
+    .. image:: ./images/azureroute8.png
 
-    .. image:: ./images/azureroute0.png
+    .. image:: ./images/azureroute9.png
 
-    .. image:: ./images/azureroute0.png
+    .. image:: ./images/azureroute10.png
 
-    .. image:: ./images/azureroute1.png
+    .. image:: ./images/azureroute11.png
 
-    .. image:: ./images/azureroute4.png
+    .. image:: ./images/azureroute12.png
 
-    .. image:: ./images/azureroute5.png
+    .. image:: ./images/azureroute13.png
     
-    .. image:: ./images/azureroute6.png
+    .. image:: ./images/azureroute14.png
+
+    .. image:: ./images/azureroute15.png
 
 #. Ping Google to ensure working config
 
@@ -352,7 +354,7 @@ Demonstrate Ingress NAT via AFM
     .. image:: ./images/forward3.png
 
     .. image:: ./images/forward4.png
-    
+
     .. image:: ./images/forward5.png
 
 

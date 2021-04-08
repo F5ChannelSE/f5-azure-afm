@@ -50,11 +50,11 @@ BIG-IP Network Addressing
       - f5vm01-ipconfig1
       - 10.0.3.4
       - local source for IPSEC
-    * - INTERNAL SELF
-      - self_3nic
-      - f5vm01-ipconfig1
+    * - INTERNAL VIP
+      - none
+      - VIP1
       - 10.0.3.7
-      - local source for IPSEC
+      - Internal VIP (VPN)
     * - App1
       - none
       - app1-ipconfig1 (Primary)

@@ -61,9 +61,11 @@ BIG-IP Network Addressing
       - 10.0.2.6
       - NAT target and pool (VPN)
 
-- Browse to bigip-ext->ip config to capture BIG-IP Networking info
+- Browse to bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding
 .. image:: ./images/bigipnetworkinfo.png
+- Browse to bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding
 .. image:: ./images/vpn2.png
+- Add Secondary IP
 .. image:: ./images/vpn3.png
 .. image:: ./images/vpn4.png
 

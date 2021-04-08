@@ -266,6 +266,7 @@ BIG-IP Network Addressing
 #. Ping Google to ensure working config
 
     .. code-block:: shell
+
        ping -c 3 google.com
 
 

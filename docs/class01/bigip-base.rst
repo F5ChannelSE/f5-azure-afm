@@ -66,15 +66,20 @@ BIG-IP Network Addressing
       - 10.0.3.6
       - NAT target and pool (VPN)
 
-- Browse to bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
+#. Validate the IP addresses in the table above and capture the missing public IP addresses
+    - Browse to BIG-IP GUI Network->Self IPs to capture external and internal nics and associated ip addresses
+    .. image:: ./images/selfip.png
+       :scale: 30 %
+
+    - Browse to Azure bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
     .. image:: ./images/bigipnetworkinfo.png
        :scale: 30 %
 
-- Browse to bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
+    - Browse to Azure bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
     .. image:: ./images/vpn2.png
        :scale: 30 %
 
-- Adding Secondary IP (VIP1)
+    - Adding Secondary IP (VIP1)
     .. image:: ./images/vpn3.png
        :scale: 30 %
     .. image:: ./images/vpn4.png
@@ -87,190 +92,134 @@ BIG-IP Network Addressing
 
 #. Configure SELF IP's to allow for VPN termination
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify net self self_2nic allow-service replace-all-with { 50:0 udp:500 udp:4500 }
-        modify net self self_3nic allow-service none
+      modify net self self_2nic allow-service replace-all-with { 50:0 udp:500 udp:4500 }
+      modify net self self_3nic allow-service none
 
 #. Configure DB keys to allow Azure link local DNS and IP VPN termination
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify sys db config.allow.rfc3927 { value "enable" }
-        modify sys db ipsec.if.checkpolicy { value "disable" }
-        modify sys db connection.vlankeyed { value "disable" }
+       modify sys db config.allow.rfc3927 { value "enable" }
+       modify sys db ipsec.if.checkpolicy { value "disable" }
+       modify sys db connection.vlankeyed { value "disable" }
 
-#. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace  <INTERNAL SELF> with the IP below where indicated.
+#. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace  **10.0.3.4** with INTERNAL SELF IP address from the info captured in the table above.
 
-    .. image:: ./images/selfip.png
-    
+   .. code-block:: shell
 
-    
-    .. code-block:: shell
+       create ltm dns cache resolver DNS_CACHE route-domain 0
+       create ltm profile dns DNS_CACHE { cache DNS_CACHE enable-cache yes enable-dns-express no enable-gtm no use-local-bind no }
+       create ltm pool AZURE_VNET_DNS { members replace-all-with { 168.63.129.16:53 } monitor tcp_half_open }
+       create ltm virtual DNS_CACHE_TCP { destination 10.0.3.4:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { f5-tcp-progressive {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+       create ltm virtual DNS_CACHE_UDP { destination 10.0.3.4:53 ip-protocol udp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
+       create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { 10.0.3.4:53 } } } }
 
-        create ltm dns cache resolver DNS_CACHE route-domain 0
-    
-    .. code-block:: shell
-
-        create ltm profile dns DNS_CACHE { cache DNS_CACHE enable-cache yes enable-dns-express no enable-gtm no use-local-bind no }
-
-    .. code-block:: shell
-
-        create ltm pool AZURE_VNET_DNS { members replace-all-with { 168.63.129.16:53 } monitor tcp_half_open }
-
-    .. code-block:: shell
-        
-        create ltm virtual DNS_CACHE_TCP { destination 10.0.3.4:53 ip-protocol tcp pool AZURE_VNET_DNS profiles replace-all-with { f5-tcp-progressive {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
-        
-    .. code-block:: shell
-
-        create ltm virtual DNS_CACHE_UDP { destination 10.0.3.4:53 ip-protocol udp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
-    
-    .. code-block:: shell
-        
-        create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { 10.0.3.4:53 } } } }
-
-    
-    
-    
-  Confirm these two virtual servers we created on the firewall.
-
-    .. image:: ./images/dnscache.png
+   - Confirm these two virtual servers we created on the firewall.
+      .. image:: ./images/dnscache.png
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify security firewall global-fqdn-policy { dns-resolver LOCAL_CACHE }
+       modify security firewall global-fqdn-policy { dns-resolver LOCAL_CACHE }
 
 #. GLOBAL LOGS : Set the global logging profile
       
-    .. code-block:: shell
+   .. code-block:: shell
     
-        modify security log profile global-network nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } }
+       modify security log profile global-network nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } }
 
     
-  Verify the changes were made to the profile
+   - Verify the changes were made to the profile
+
+   .. code-block:: shell
+
+      list security log profile global-network
     
-    .. code-block:: shell
+   - Your configuration should match the image below.
+      .. image:: ./images/globalnetwork.png
 
-        list security log profile global-network
+#. Create a new logging profile called AFM-LOCAL
+
+   .. code-block:: shell
+
+      create security log profile AFM-LOCAL { nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } } }
+
+   - View the changed profile
+      .. code-block:: shell 
     
-    
-    
-    Your configuration should match the image below.
+         list security log profile AFM-LOCAL
 
-    .. image:: ./images/globalnetwork.png
-
-#. Logging Profile :
-    
-    Create a new logging profile called AFM-LOCAL
-
-    .. code-block:: shell
-
-        create security log profile AFM-LOCAL { nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } } }
-
-    
-    View the changed profile
-
-    .. code-block:: shell 
-    
-     list security log profile AFM-LOCAL
-
-            
-    
-    - Your output should look like the image below.
-
-    .. image:: ./images/loggingprofile.png
+   - Your output should look like the image below.
+         .. image:: ./images/loggingprofile.png
 
 
 #. Configure MGMT Port AFM Rules.  This will allow SSH and HTTPS to the MGMT address and deny everything else.
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify security firewall management-ip-rules { rules replace-all-with { ALLOW-SSH { action accept place-before first ip-protocol tcp log yes description "Example SSH" destination { ports replace-all-with { 22 } } } ALLOW-HTTPS { action accept description "Example HTTPS" ip-protocol tcp log yes destination { ports replace-all-with { 443 } } } DENY-ALL { action drop log yes place-after last } } }
+      modify security firewall management-ip-rules { rules replace-all-with { ALLOW-SSH { action accept place-before first ip-protocol tcp log yes description "Example SSH" destination { ports replace-all-with { 22 } } } ALLOW-HTTPS { action accept description "Example HTTPS" ip-protocol tcp log yes destination { ports replace-all-with { 443 } } } DENY-ALL { action drop log yes place-after last } } }
 
 #. Switch the F5 from ADC mode into Firewall mode
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify sys db tm.fw.defaultaction value drop
+      modify sys db tm.fw.defaultaction value drop
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
     
-    - You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure. Get the ip from the table above.
+   - You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure.  Replace **10.0.3.7** with the INTERNAL VIP from the table above if different.
 
-    - The image below will show you where to find the IPs in addition to the table at the beginning
+   .. code-block:: shell
 
-    .. image:: ./images/pipaddresses.png
-
-    - Replace <ADDITIONAL PUBLIC IP FOR PAT> with the appropriate address
-
-
-   
-   
-    .. code-block:: shell
-
-        create security nat source-translation OUTBOUND-PAT addresses add { <ADDITIONAL PUBLIC IP FOR PAT>/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
-        
-    .. code-block:: shell   
-        
-        create security nat policy OUTBOUND-PAT rules replace-all-with { RFC-1918-OUTBOUND-PAT { source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } translation { source OUTBOUND-PAT } } }
-        
-    .. code-block:: shell   
-    
-        create security firewall policy PUBLIC-SELF rules replace-all-with { ALLOW-ESP { ip-protocol esp action accept } ALLOW-IKE { ip-protocol udp destination { ports add { 500 } } action accept } ALLOW-NAT-T { ip-protocol udp destination { ports add { 4500 } } action accept } }
-        
-    .. code-block:: shell  
-        
-        create security firewall policy OUTBOUND-FORWARDING rules replace-all-with { OUTBOUND-ALLOW { action accept log yes source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } source { vlans replace-all-with { internal } } } }
-        
-    .. code-block:: shell   
-        
-        create security firewall policy DNS_CACHE { rules replace-all-with { ALLOW-DNS-UDP { action accept ip-protocol udp log yes place-before first destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } ALLOW-DNS-TCP { action accept ip-protocol tcp log yes destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } } }
-
-
+      create security nat source-translation OUTBOUND-PAT addresses add { 10.0.3.7/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
+      create security nat policy OUTBOUND-PAT rules replace-all-with { RFC-1918-OUTBOUND-PAT { source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } translation { source OUTBOUND-PAT } } }
+      create security firewall policy PUBLIC-SELF rules replace-all-with { ALLOW-ESP { ip-protocol esp action accept } ALLOW-IKE { ip-protocol udp destination { ports add { 500 } } action accept } ALLOW-NAT-T { ip-protocol udp destination { ports add { 4500 } } action accept } }
+      create security firewall policy OUTBOUND-FORWARDING rules replace-all-with { OUTBOUND-ALLOW { action accept log yes source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } source { vlans replace-all-with { internal } } } }
+      create security firewall policy DNS_CACHE { rules replace-all-with { ALLOW-DNS-UDP { action accept ip-protocol udp log yes place-before first destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } ALLOW-DNS-TCP { action accept ip-protocol tcp log yes destination { ports replace-all-with { 53 } } source { addresses replace-all-with { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans replace-all-with { internal } } } } }
 
 #. Attach AFM Policies to Self IP's
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify net self self_2nic fw-enforced-policy PUBLIC-SELF
+      modify net self self_2nic fw-enforced-policy PUBLIC-SELF
         
 #. Attach AFM Policy to DNS Cache VIP
 
-    .. code-block:: shell
+   .. code-block:: shell
     
-        modify ltm virtual DNS_CACHE_UDP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
-        modify ltm virtual DNS_CACHE_TCP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
+      modify ltm virtual DNS_CACHE_UDP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
+      modify ltm virtual DNS_CACHE_TCP fw-enforced-policy DNS_CACHE security-log-profiles add { AFM-LOCAL }
 
 #. Configure forwarding virtual servers for outbound traffic and attach AFM Policies/NAT Policies where applicable
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        create ltm virtual VS-FORWARDING-OUTBOUND destination 0.0.0.0:any ip-forward vlans replace-all-with { internal } vlans-enabled profiles replace-all-with { fastL4 } fw-enforced-policy OUTBOUND-FORWARDING security-nat-policy { policy OUTBOUND-PAT } security-log-profiles add { AFM-LOCAL }
+      create ltm virtual VS-FORWARDING-OUTBOUND destination 0.0.0.0:any ip-forward vlans replace-all-with { internal } vlans-enabled profiles replace-all-with { fastL4 } fw-enforced-policy OUTBOUND-FORWARDING security-nat-policy { policy OUTBOUND-PAT } security-log-profiles add { AFM-LOCAL }
 
 #. Change Azure VNET routing, enable forwarding, etc and test basic configuration.
 
-    - You will create an UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP, then you will test the configuration with Ping from both App servers.
+   - Create Azure UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP.  Ensure you start from your f5student###-rg
 
-    .. image:: ./images/azureroute7.png
+   .. image:: ./images/azureroute7.png
 
-    .. image:: ./images/azureroute8.png
+   .. image:: ./images/azureroute8.png
 
-    .. image:: ./images/azureroute9.png
+   .. image:: ./images/azureroute9.png
 
-    .. image:: ./images/azureroute10.png
+   .. image:: ./images/azureroute10.png
 
-    .. image:: ./images/azureroute11.png
+   .. image:: ./images/azureroute11.png
 
-    .. image:: ./images/azureroute12.png
+   .. image:: ./images/azureroute12.png
 
-    .. image:: ./images/azureroute13.png
+   .. image:: ./images/azureroute13.png
     
-    .. image:: ./images/azureroute14.png
+   .. image:: ./images/azureroute14.png
 
-    .. image:: ./images/azureroute15.png
+   .. image:: ./images/azureroute15.png
 
 #. Ping Google to ensure working config
 

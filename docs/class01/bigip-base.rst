@@ -58,24 +58,31 @@ BIG-IP Network Addressing
     * - App1
       - none
       - app1-ipconfig1 (Primary)
-      - 10.0.2.5
+      - 10.0.3.5
       - NAT target and pool (VPN)
     * - App2
       - none
       - app2-ipconfig1 (Primary)
-      - 10.0.2.6
+      - 10.0.3.6
       - NAT target and pool (VPN)
 
 - Browse to bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
-.. image:: ./images/bigipnetworkinfo.png
+    .. image:: ./images/bigipnetworkinfo.png
+       :scale: 30 %
+
 - Browse to bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
-.. image:: ./images/vpn2.png
+    .. image:: ./images/vpn2.png
+       :scale: 30 %
+
 - Adding Secondary IP (VIP1)
-.. image:: ./images/vpn3.png
-.. image:: ./images/vpn4.png
+    .. image:: ./images/vpn3.png
+       :scale: 30 %
+    .. image:: ./images/vpn4.png
+       :scale: 40 %
 
 #. Connect to BIG-IP TMOS CLI
-    - ssh azureuser@<f5student#bigip-mgmt-pip>
+    - serial console to f5student###-f5vm01
+    - login: azureuser
     - password: ChangeMeNow123!
 
 #. Configure SELF IP's to allow for VPN termination

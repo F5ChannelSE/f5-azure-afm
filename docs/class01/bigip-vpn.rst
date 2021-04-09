@@ -27,6 +27,7 @@ Required Information
    - Internal VIP/SNAT Pool IP : <Allocate addition 10.0.3.x to BIGIP Internal NIC in Azure Console>
    - APP1 Internal IP : 10.0.3.x
    - APP2 Internal IP : 10.0.3.x
+   - VPN VTI Space : 172.31.x.0/24 - Replace X with Student Number
 
 Deploy said VPN
 ~~~~~~~~~~~~~~~

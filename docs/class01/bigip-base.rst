@@ -22,7 +22,7 @@ BIG-IP Network Addressing
       - local source for IPSEC
     * - EXTERNAL SELF PUBLIC
       - self_2nic
-      - 5vm01-self (Primary)
+      - f5vm01-self (Primary)
       - 
       - used as IPSEC ID
     * - OUTBOUND-IP PAT PRIVATE
@@ -72,7 +72,7 @@ BIG-IP Network Addressing
        :scale: 30 %
 
     - Browse to Azure bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
-    .. image:: ./images/bigipnetworkinfo.png
+    .. image:: ./images/externalforward2.png
        :scale: 30 %
 
     - Browse to Azure bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP

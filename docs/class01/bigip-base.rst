@@ -65,7 +65,7 @@ BIG-IP Network Addressing
       - app2-ipconfig1 (Primary)
       - 10.0.3.6
       - NAT target and pool (VPN)
-
+      
 #. Validate the IP addresses in the table above and capture the missing public IP addresses
     - Browse to BIG-IP GUI Network->Self IPs to capture external and internal nics and associated ip addresses
     .. image:: ./images/selfip.png
@@ -223,9 +223,9 @@ BIG-IP Network Addressing
 
 #. Ping Google to ensure working config
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-       ping -c 3 google.com
+      ping -c 3 google.com
 
 
 Demonstrate Egress filtering
@@ -233,114 +233,111 @@ Demonstrate Egress filtering
 
 #. Modify the AFM to block outbound access
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify security firewall policy OUTBOUND-FORWARDING rules none
+      modify security firewall policy OUTBOUND-FORWARDING rules none
 
 #. You will confirm outbound access is now blocked from each the APP servers.  You need to serial console into the app servers to ping from them. Screenshots and details below.
 
-    - From the Resource Group pick either app1 or app2
+   - From the Resource Group pick either app1 or app2
 
+   .. image:: ./images/console2.png
 
-    .. image:: ./images/console2.png
+   - Navigate to Serial Console - and login
 
-    - Navigate to Serial Console - and login
+   .. image:: ./images/console7.png
 
-    .. image:: ./images/console7.png
+   .. image:: ./images/console8.png
 
-    .. image:: ./images/console8.png
+   - Now test the blocking configuration
 
-    - Now test the blocking configuration
+   .. code-block:: shell
 
-    .. code-block:: shell
+      ping -c 3 google.com
+      ping -c 3 1.1.1.1
 
-        ping -c 3 google.com
-        ping -c 3 1.1.1.1
-
-    .. image:: ./images/pinggoogle.png
+   .. image:: ./images/pinggoogle.png
     
 
-    - This should result in 100% packet loss
+   - This should result in 100% packet loss
 
 #. Configure the App Servers (APP1) and (APP2) to use the DNS Caching VIP 
     
-    - You will need the internal IP of the AFM VIP (below 10.0.3.4) and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverage our F5 DNS cache so that AFM FQDN resolution works correctly. 
+   - You will need the internal IP of the AFM VIP (below 10.0.3.4) and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverage our F5 DNS cache so that AFM FQDN resolution works correctly. 
     
-    .. code-block:: shell
+   .. code-block:: shell
     
-        sudo su -c 'echo "DNS=10.0.3.4" >> /etc/systemd/resolved.conf && systemctl restart systemd-resolved.service'
+      sudo su -c 'echo "DNS=10.0.3.4" >> /etc/systemd/resolved.conf && systemctl restart systemd-resolved.service'
 
 #. Whitelist specific hosts/ports/protocols/FQDN's (i.e. allow 80/443 to google.com and ICMP to CloudFlare DNS)
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-GOOGLE.COM { ip-protocol tcp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { fqdns add { google.com www.google.com } ports add { 80 443 } } place-after first action accept log yes } }
-        modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
+      modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-GOOGLE.COM { ip-protocol tcp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { fqdns add { google.com www.google.com } ports add { 80 443 } } place-after first action accept log yes } }
+      modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
         
+   - Retest the configuration and you now should be able to ping.
 
-    - Retest the configuration and you now should be able to ping.
+   .. code-block:: shell
 
-    .. code-block:: shell
+      ping -c google.com
+      ping -c 1.1.1.1
 
-        ping -c google.com
-        ping -c 1.1.1.1
+   .. image:: ./images/pingcloudflare.png
 
-    .. image:: ./images/pingcloudflare.png
-
-       
 
 #. Confirm whitelisting works as expected by testing from the APP servers , show logs in AFM gui to confirm 
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        nc -v google.com 80
-        nc -v google.com 443
-        ping 1.1.1.1
-        ping 1.0.0.1
+      nc -v google.com 80
+      nc -v google.com 443
+      ping 1.1.1.1
+      ping 1.0.0.1
 
 Demonstrate Ingress NAT via AFM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Ensure that the Public Interface NSG of the F5 Instance has a firewall rule allowing all ports and protocols.
 
-    .. image:: ./images/forward1.png
+   .. image:: ./images/forward1.png
 
-    .. image:: ./images/forward2.png
+   .. image:: ./images/forward2.png
 
-    .. image:: ./images/forward3.png
+   .. image:: ./images/forward3.png
 
-    .. image:: ./images/forward4.png
+   .. image:: ./images/forward4.png
 
-    .. image:: ./images/forward5.png
+   .. image:: ./images/forward5.png
 
 
 
 #. Configure inbound port mappings for SSH to both App servers (i.e. TCP/2022 to App1, TCP/2023 to App2)
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        create security nat destination-translation APP1-SSH { addresses replace-all-with { <APP-1 IP> { } } ports replace-all-with { 22 } type static-pat }
+      create security nat destination-translation APP1-SSH { addresses replace-all-with { <APP-1 IP> { } } ports replace-all-with { 22 } type static-pat }
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        create security nat destination-translation APP2-SSH { addresses replace-all-with { <APP-2 IP> { } } ports replace-all-with { 22 } type static-pat }
+      create security nat destination-translation APP2-SSH { addresses replace-all-with { <APP-2 IP> { } } ports replace-all-with { 22 } type static-pat }
         
-    .. code-block:: shell
+   .. code-block:: shell
 
-        create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }
+      create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }
 
 #. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        create security firewall policy INBOUND-PAT { rules replace-all-with { ALLOW-APP1-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2022 } } source { vlans replace-all-with { external } } } ALLOW-APP2-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2023 } } source { vlans replace-all-with { external } } } } }
-        create ltm virtual VS-FORWARDING-INBOUND { destination 0.0.0.0:any mask any ip-forward fw-enforced-policy INBOUND-PAT profiles replace-all-with { fastL4 } security-nat-policy { policy INBOUND-PAT } vlans-enabled vlans replace-all-with { external } }
+      create security firewall policy INBOUND-PAT { rules replace-all-with { ALLOW-APP1-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2022 } } source { vlans replace-all-with { external } } } ALLOW-APP2-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2023 } } source { vlans replace-all-with { external } } } } }
+      create ltm virtual VS-FORWARDING-INBOUND { destination 0.0.0.0:any mask any ip-forward fw-enforced-policy INBOUND-PAT profiles replace-all-with { fastL4 } security-nat-policy { policy INBOUND-PAT } vlans-enabled vlans replace-all-with { external } }
 
 #. Validate configuration from outside of the F5, show logs on AFM
 
-    .. code-block:: shell
+   .. code-block:: shell
 
-        nc -v <Public IP for inbound pat> 2022
-        nc -v <Public IP for inbound pat> 2023
-        ssh -p 2022 azureuser@<public ip>
-        ssh -p 2023 azureuser@<public ip>
+      nc -v <Public IP for inbound pat> 2022
+      nc -v <Public IP for inbound pat> 2023
+      ssh -p 2022 azureuser@<public ip>
+      ssh -p 2023 azureuser@<public ip>

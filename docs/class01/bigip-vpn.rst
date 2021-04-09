@@ -52,12 +52,33 @@ Deploy said VPN
 .. code-block:: shell
 
     create net ipsec ipsec-policy VPN_IPSEC_POLICY { protocol esp mode interface ike-phase2-auth-algorithm sha256 ike-phase2-encrypt-algorithm aes256 ike-phase2-perfect-forward-secrecy modp2048 ike-phase2-lifetime 1440 ike-phase2-lifetime-kilobytes 0 }
+
+.. code-block:: shell
+
     create net ipsec traffic-selector VPN_RD1_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
+
+.. code-block:: shell
+
     create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.219.164 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <Public Self IP Actual Public> peers-id-type address peers-id-value 52.158.219.164 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
+
+.. code-block:: shell
+
     create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_RD1_TS defaults-from ipsec
+
+.. code-block:: shell
+
     create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address <Local Public Self IP Azure Private IP> remote-address 52.158.219.164
+
+.. code-block:: shell
+
     modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
+
+.. code-block:: shell
+
     create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
+
+.. code-block:: shell
+
     create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
 
 #. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. 
@@ -65,6 +86,9 @@ Deploy said VPN
 .. code-block:: shell
 
     create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
+
+.. code-block:: shell
+
     create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
 
 #. Create LTM Pools for SSH traffic
@@ -72,7 +96,13 @@ Deploy said VPN
 .. code-block:: shell
 
     create ltm pool RD1_SSH members replace-all-with { 10.0.3.5%1:22 } monitor tcp_half_open
+
+.. code-block:: shell
+
     create ltm pool APP1_SSH members replace-all-with { <APP1 IP>:22 } monitor tcp_half_open
+
+.. code-block:: shell
+
     create ltm pool APP2_SSH members replace-all-with { <APP2 IP>:22 } monitor tcp_half_open
 
 #. Create FW Policy
@@ -87,18 +117,23 @@ Deploy said VPN
 
     create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.x:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
+.. code-block:: shell
+
     create ltm virtual VS_APP1_SSH-RD1 destination 172.31.x.10%1 pool APP1_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+
+.. code-block:: shell
 
     create ltm virtual VS_APP2_SSH-RD1 destination 172.31.x.11%1 pool APP2_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
 #. Validate solution 
 
+    From APP1 or APP2
+
 .. code-block:: shell
 
-    From APP1 or APP2
     nc -v <Internal VIP IP> 22
     ssh azureuser@<Internal VIP IP>
     
-    - Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
+- Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
     
 #. Wrap up and delete resource group 

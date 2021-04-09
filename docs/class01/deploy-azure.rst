@@ -43,12 +43,9 @@ Launch BIG-IP 3nic stack
    | Image Name             | Best25Mbps               |
    +------------------------+--------------------------+
    | BIG IP Modules         | ltm:nominal,afm:nominal  |                      
-   +------------------------+--------------------------+
-   | Licensed Bandwidth     | 25M                      |
-   +------------------------+--------------------------+            
+   +------------------------+--------------------------+           
    | Restricted Src Address | 0.0.0.0/0                |
    +------------------------+--------------------------+ 
-
 
    .. image:: ./images/arm3nic.png
       :scale: 40 %
@@ -88,6 +85,10 @@ Deploy App Servers
 
    +------------------------+--------------------------+
    | OS Disk Type           | Standard HDD             |
+   +------------------------+--------------------------+
+   | Use Managed Disk       | Deselected (No)          |
+   +------------------------+--------------------------+
+   | Storage Account        | select your rg from list |
    +------------------------+--------------------------+
 
    - click "Next : Networking"
@@ -131,6 +132,10 @@ Deploy App Servers
 
    +------------------------+--------------------------+
    | OS Disk Type           | Standard HDD             |
+   +------------------------+--------------------------+
+   | Use Managed Disk       | Deselected (No)          |
+   +------------------------+--------------------------+
+   | Storage Account        | select your rg from list |
    +------------------------+--------------------------+
 
    - click "Next : Networking"

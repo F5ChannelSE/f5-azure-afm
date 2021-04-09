@@ -127,12 +127,13 @@ Deploy said VPN
 
 #. Validate solution 
 
+    From APP1 or APP2
+
 .. code-block:: shell
 
-    From APP1 or APP2
     nc -v <Internal VIP IP> 22
     ssh azureuser@<Internal VIP IP>
     
-    - Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
+- Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
     
 #. Wrap up and delete resource group 

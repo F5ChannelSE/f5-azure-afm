@@ -69,21 +69,20 @@ BIG-IP Network Addressing
 #. Validate the IP addresses in the table above and capture the missing public IP addresses
     - Browse to BIG-IP GUI Network->Self IPs to capture external and internal nics and associated ip addresses
     .. image:: ./images/selfip.png
-       :scale: 30 %
-
+  
     - Browse to Azure bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
     .. image:: ./images/externalforward2.png
-       :scale: 30 %
+
 
     - Browse to Azure bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
     .. image:: ./images/vpn2.png
-       :scale: 30 %
+
 
     - Adding Secondary IP (VIP1)
     .. image:: ./images/vpn3.png
-       :scale: 30 %
+
     .. image:: ./images/vpn4.png
-       :scale: 40 %
+ %
 
 #. Connect to BIG-IP TMOS CLI
     - serial console to f5student###-f5vm01

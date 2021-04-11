@@ -21,7 +21,7 @@ Launch BIG-IP 3nic stack
    - Username : f5student#@f5custlabs.onmicrosoft.com
    - Password:  ChangeMe123
 
-#. Complete the Customized template with the following values **(don’t follow the screen shot)**
+#. Complete the Customized template using the following values **(replace # with your student number to avoid conflicts)**
 
    +------------------------+--------------------------+
    | Resource Group         | Select Create New        |
@@ -34,9 +34,9 @@ Launch BIG-IP 3nic stack
    +------------------------+--------------------------+
    | Admin Password         | ChangeMeNow123!          |
    +------------------------+--------------------------+
-   | DNS Label              | f5student#BIGIP          |
+   | DNS Label              | f5student#bigip          |
    +------------------------+--------------------------+
-   | Instance Name          | f5student-f5vm01         |
+   | Instance Name          | f5student#-f5vm01        |
    +------------------------+--------------------------+
    | Number of External IPs | 3                        |                      
    +------------------------+--------------------------+
@@ -49,6 +49,7 @@ Launch BIG-IP 3nic stack
 
    .. image:: ./images/arm3nic.png
       :scale: 40 %
+
 #. Click the “Review + Create”
 #. Click “Create” after confirming entries
 #. This will take appoximately 10 minutes
@@ -81,6 +82,9 @@ Deploy App Servers
    | Public inbound ports   | none                     |
    +------------------------+--------------------------+
 
+   .. image:: ./images/ubuntucreate.png
+      :scale: 40 %
+      
    - click "Next : Disks"
 
    +------------------------+--------------------------+
@@ -91,6 +95,9 @@ Deploy App Servers
    | Storage Account        | select your rg from list |
    +------------------------+--------------------------+
 
+   .. image:: ./images/ubuntudisk.png
+      :scale: 40 %
+     
    - click "Next : Networking"
 
    +------------------------+--------------------------+
@@ -101,6 +108,9 @@ Deploy App Servers
    | NIC security group     | None                     |
    +------------------------+--------------------------+
 
+   .. image:: ./images/ubuntunetwork.png
+      :scale: 40 %
+     
    - click "Review + create"
 
 #. Click “Create” after confirming entries
@@ -108,7 +118,7 @@ Deploy App Servers
 
    - Continue when deployment completed
 
-#. Deploy App2
+#. Repeat previous steps to deploy App2
 
    - Click "Add"
    - Select Ubuntu Server 18.04 LTS

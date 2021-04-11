@@ -65,31 +65,40 @@ BIG-IP Network Addressing
       - app2-ipconfig1 (Primary)
       - 10.0.3.6
       - NAT target and pool (VPN)
-      
-#. Validate the IP addresses in the table above and capture the missing public IP addresses
+
+#. Copy and paste the table above to a text editor.  Validate the predicted IP addresses and update with actual IP addresses from your environment if different.  Fill in the missing public IP addresses.  You will need to refer back to this table throughout the lab.
     - Browse to BIG-IP GUI Network->Self IPs to capture external and internal nics and associated ip addresses
+
     .. image:: ./images/selfip.png
-  
-    - Browse to Azure bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
+
+    - Browse to Azure f5student#bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
+
     .. image:: ./images/externalforward2.png
 
 
-    - Browse to Azure bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
+    - Browse to Azure f5student#bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
+
     .. image:: ./images/vpn2.png
 
 
     - Adding Secondary IP (VIP1)
+
     .. image:: ./images/vpn3.png
 
     .. image:: ./images/vpn4.png
- %
 
-#. Connect to BIG-IP TMOS CLI
-    - serial console to f5student###-f5vm01
+#. Connect to BIG-IP CLI. 
+    - browse to Azure f5student#-f5vm01 and select Serial console
     - login: azureuser
     - password: ChangeMeNow123!
 
-#. Configure SELF IP's to allow for VPN termination
+    .. image:: ./images/f5vm01.png
+      :scale: 40 %
+
+    .. image:: ./images/bigipserial.png
+      :scale: 40 %
+
+#. Configure SELF IP's to allow for VPN termination on external interface and allow none on internal interface
 
    .. code-block:: shell
 
@@ -104,7 +113,7 @@ BIG-IP Network Addressing
        modify sys db ipsec.if.checkpolicy { value "disable" }
        modify sys db connection.vlankeyed { value "disable" }
 
-#. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace  **10.0.3.4** with INTERNAL SELF IP address from the info captured in the table above.
+#. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace **10.0.3.4** with INTERNAL SELF IP address from the info captured in the table above if different
 
    .. code-block:: shell
 
@@ -115,7 +124,7 @@ BIG-IP Network Addressing
        create ltm virtual DNS_CACHE_UDP { destination 10.0.3.4:53 ip-protocol udp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
        create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { 10.0.3.4:53 } } } }
 
-   - Confirm these two virtual servers we created on the firewall.
+   - Browse to BIG-IP GUI Local Traffic->Network Map to confirm two virtual servers and associated pool member was created
       .. image:: ./images/dnscache.png
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
@@ -200,32 +209,73 @@ BIG-IP Network Addressing
 
 #. Change Azure VNET routing, enable forwarding, etc and test basic configuration.
 
-   - Create Azure UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP.  Ensure you start from your f5student###-rg
-
-   .. image:: ./images/azureroute7.png
+   - Create Azure UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP.  Browse to your f5student#-rg then click "Add"
 
    .. image:: ./images/azureroute8.png
+      :scale: 60 %
+
+   - Search for route table then click "Create"
 
    .. image:: ./images/azureroute9.png
+      :scale: 60 %
+
+   - complete route table with following values
+
+   +-------------------------+--------------------------+
+   | Resource Group          | f5student#-rg            |
+   +-------------------------+--------------------------+
+   | Name                    | f5student#-udr           |
+   +-------------------------+--------------------------+
+   | Propagate Gateway routes| Yes                      |
+   +-------------------------+--------------------------+
 
    .. image:: ./images/azureroute10.png
+      :scale: 60 %
 
-   .. image:: ./images/azureroute11.png
+   - click "Review + create" then "Create"
+   - after Deployment completed click "Go to resource"
+   - click "Routes" then "Add"
 
    .. image:: ./images/azureroute12.png
+      :scale: 60 %
+
+   - Add Route using the following values
+
+   +-------------------------+--------------------------+
+   | Route Name              | Default-AFM              |
+   +-------------------------+--------------------------+
+   | Address prefix          | 0.0.0.0/0                |
+   +-------------------------+--------------------------+
+   | Next hop type           | Virtual Appliance        |
+   +-------------------------+--------------------------+
+   | Next hop address        | 10.0.3.4                 |
+   +-------------------------+--------------------------+
 
    .. image:: ./images/azureroute13.png
-    
+      :scale: 60 %
+
+   - click "Subnets" then "Associate"
+   - Add Subnet using the following values
+
+   +-------------------------+----------------------------+
+   | Virtual network         | f5student#bigip-vnet       |
+   +-------------------------+----------------------------+
+   | Subnet                  | internal                   |
+   +-------------------------+----------------------------+
+
    .. image:: ./images/azureroute14.png
+      :scale: 60 %
+
+   - click "OK" then "Overview" to ensure results match the image below
 
    .. image:: ./images/azureroute15.png
+      :scale: 60 %
 
 #. Ping Google to ensure working config
 
    .. code-block:: shell
 
       ping -c 3 google.com
-
 
 Demonstrate Egress filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -235,6 +285,9 @@ Demonstrate Egress filtering
    .. code-block:: shell
 
       modify security firewall policy OUTBOUND-FORWARDING rules none
+
+   .. image:: ./images/outboundallow.png
+      :scale: 60 %
 
 #. You will confirm outbound access is now blocked from each the APP servers.  You need to serial console into the app servers to ping from them. Screenshots and details below.
 
@@ -253,7 +306,7 @@ Demonstrate Egress filtering
    .. code-block:: shell
 
       ping -c 3 google.com
-      ping -c 3 1.1.1.1
+      ping -c 3 1.0.0.1
 
    .. image:: ./images/pinggoogle.png
     
@@ -279,8 +332,8 @@ Demonstrate Egress filtering
 
    .. code-block:: shell
 
-      ping -c google.com
-      ping -c 1.1.1.1
+      ping -c 3 google.com
+      ping -c 3 1.1.1.1
 
    .. image:: ./images/pingcloudflare.png
 

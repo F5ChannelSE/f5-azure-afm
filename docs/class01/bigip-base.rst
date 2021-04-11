@@ -287,7 +287,7 @@ Demonstrate Egress filtering
       modify security firewall policy OUTBOUND-FORWARDING rules none
 
    .. image:: ./images/outboundallow.png
-      :scale: 60 %
+      :scale: 80 %
 
 #. You will confirm outbound access is now blocked from each the APP servers.  You need to serial console into the app servers to ping from them. Screenshots and details below.
 

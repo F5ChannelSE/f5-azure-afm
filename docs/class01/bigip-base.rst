@@ -88,15 +88,15 @@ BIG-IP Network Addressing
     .. image:: ./images/vpn4.png
 
 #. Connect to BIG-IP CLI. 
-    - browse to Azure f5student#-f5vm01 and select Serial console
+    - browse to Azure f5student#-f5vm01 and select "Serial console"
     - login: azureuser
     - password: ChangeMeNow123!
 
     .. image:: ./images/f5vm01.png
-      :scale: 40 %
+      :scale: 60 %
 
     .. image:: ./images/bigipserial.png
-      :scale: 40 %
+      :scale: 60 %
 
 #. Configure SELF IP's to allow for VPN termination on external interface and allow none on internal interface
 
@@ -212,12 +212,12 @@ BIG-IP Network Addressing
    - Create Azure UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP.  Browse to your f5student#-rg then click "Add"
 
    .. image:: ./images/azureroute8.png
-      :scale: 60 %
+      :scale: 80 %
 
    - Search for route table then click "Create"
 
    .. image:: ./images/azureroute9.png
-      :scale: 60 %
+      :scale: 80 %
 
    - complete route table with following values
 
@@ -230,14 +230,14 @@ BIG-IP Network Addressing
    +-------------------------+--------------------------+
 
    .. image:: ./images/azureroute10.png
-      :scale: 60 %
+      :scale: 80 %
 
    - click "Review + create" then "Create"
    - after Deployment completed click "Go to resource"
    - click "Routes" then "Add"
 
    .. image:: ./images/azureroute12.png
-      :scale: 60 %
+      :scale: 80 %
 
    - Add Route using the following values
 
@@ -252,7 +252,7 @@ BIG-IP Network Addressing
    +-------------------------+--------------------------+
 
    .. image:: ./images/azureroute13.png
-      :scale: 60 %
+      :scale: 80 %
 
    - click "Subnets" then "Associate"
    - Add Subnet using the following values
@@ -264,12 +264,12 @@ BIG-IP Network Addressing
    +-------------------------+----------------------------+
 
    .. image:: ./images/azureroute14.png
-      :scale: 60 %
+      :scale: 80 %
 
    - click "OK" then "Overview" to ensure results match the image below
 
    .. image:: ./images/azureroute15.png
-      :scale: 60 %
+      :scale: 80 %
 
 #. Ping Google to ensure working config
 
@@ -287,7 +287,6 @@ Demonstrate Egress filtering
       modify security firewall policy OUTBOUND-FORWARDING rules none
 
    .. image:: ./images/outboundallow.png
-      :scale: 80 %
 
 #. You will confirm outbound access is now blocked from each the APP servers.  You need to serial console into the app servers to ping from them. Screenshots and details below.
 

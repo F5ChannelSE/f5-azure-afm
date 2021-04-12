@@ -178,11 +178,11 @@ BIG-IP Network Addressing
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
     
-   - You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure.  Replace **10.0.3.7** with the INTERNAL VIP from the table above if different.
+   - You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure.  Replace **10.0.2.10** with the INTERNAL VIP from the table above if different.
 
    .. code-block:: shell
 
-      create security nat source-translation OUTBOUND-PAT addresses add { 10.0.3.7/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
+      create security nat source-translation OUTBOUND-PAT addresses add { 10.0.2.10/32 } pat-mode napt type dynamic-pat ports add { 1024-65535 }
       create security nat policy OUTBOUND-PAT rules replace-all-with { RFC-1918-OUTBOUND-PAT { source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } translation { source OUTBOUND-PAT } } }
       create security firewall policy PUBLIC-SELF rules replace-all-with { ALLOW-ESP { ip-protocol esp action accept } ALLOW-IKE { ip-protocol udp destination { ports add { 500 } } action accept } ALLOW-NAT-T { ip-protocol udp destination { ports add { 4500 } } action accept } }
       create security firewall policy OUTBOUND-FORWARDING rules replace-all-with { OUTBOUND-ALLOW { action accept log yes source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } } source { vlans replace-all-with { internal } } } }

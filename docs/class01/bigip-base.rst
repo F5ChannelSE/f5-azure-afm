@@ -92,11 +92,7 @@ BIG-IP Network Addressing
     - login: azureuser
     - password: ChangeMeNow123!
 
-    .. image:: ./images/f5vm01.png
-      :scale: 60 %
-
     .. image:: ./images/bigipserial.png
-      :scale: 60 %
 
 #. Configure SELF IP's to allow for VPN termination on external interface and allow none on internal interface
 
@@ -147,6 +143,7 @@ BIG-IP Network Addressing
       list security log profile global-network
     
    - Your configuration should match the image below.
+
       .. image:: ./images/globalnetwork.png
 
 #. Create a new logging profile called AFM-LOCAL
@@ -156,13 +153,14 @@ BIG-IP Network Addressing
       create security log profile AFM-LOCAL { nat { end-inbound-session enabled end-outbound-session { action enabled elements replace-all-with { destination } } errors enabled log-publisher local-db-publisher log-subscriber-id enabled quota-exceeded enabled start-inbound-session enabled start-outbound-session { action enabled elements replace-all-with { destination } } } network replace-all-with { global-network { filter { log-acl-match-accept enabled log-acl-match-drop enabled log-acl-match-reject enabled log-geo-always enabled log-tcp-errors enabled log-tcp-events enabled log-translation-fields enabled log-uuid-field enabled log-ip-errors enabled log-acl-to-box-deny enabled log-user-always enabled } publisher local-db-publisher } } }
 
    - View the changed profile
+
       .. code-block:: shell 
-    
+
          list security log profile AFM-LOCAL
 
    - Your output should look like the image below.
-         .. image:: ./images/loggingprofile.png
 
+   .. image:: ./images/loggingprofile.png
 
 #. Configure MGMT Port AFM Rules.  This will allow SSH and HTTPS to the MGMT address and deny everything else.
 
@@ -212,12 +210,10 @@ BIG-IP Network Addressing
    - Create Azure UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP.  Browse to your f5student#-rg then click "Add"
 
    .. image:: ./images/azureroute8.png
-      :scale: 80 %
 
    - Search for route table then click "Create"
 
    .. image:: ./images/azureroute9.png
-      :scale: 80 %
 
    - complete route table with following values
 
@@ -230,14 +226,12 @@ BIG-IP Network Addressing
    +-------------------------+--------------------------+
 
    .. image:: ./images/azureroute10.png
-      :scale: 80 %
 
    - click "Review + create" then "Create"
    - after Deployment completed click "Go to resource"
    - click "Routes" then "Add"
 
    .. image:: ./images/azureroute12.png
-      :scale: 80 %
 
    - Add Route using the following values
 
@@ -252,7 +246,6 @@ BIG-IP Network Addressing
    +-------------------------+--------------------------+
 
    .. image:: ./images/azureroute13.png
-      :scale: 80 %
 
    - click "Subnets" then "Associate"
    - Add Subnet using the following values
@@ -264,91 +257,85 @@ BIG-IP Network Addressing
    +-------------------------+----------------------------+
 
    .. image:: ./images/azureroute14.png
-      :scale: 80 %
 
    - click "OK" then "Overview" to ensure results match the image below
 
    .. image:: ./images/azureroute15.png
-      :scale: 80 %
 
-#. Ping Google to ensure working config
+#. Confirm app1 and app2 can access internet via AFM
+
+   - browse to Azure f5student#-app1 and f5student#-app2 then select "Serial console"
+   - login: azureuser
+   - password: ChangeMeNow123!
 
    .. code-block:: shell
 
       ping -c 3 google.com
 
+   - browse to BIG-IP GUI Security->Network Firewall->Policies to review OUTBOUND-FORWARDING rules accept any
+
+   .. image:: ./images/outboundallow.png
+
 Demonstrate Egress filtering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. Modify the AFM to block outbound access
+#. Modify AFM to block outbound access
 
    .. code-block:: shell
 
       modify security firewall policy OUTBOUND-FORWARDING rules none
 
-   .. image:: ./images/outboundallow.png
+   .. image:: ./images/outboundnone.png
 
-#. You will confirm outbound access is now blocked from each the APP servers.  You need to serial console into the app servers to ping from them. Screenshots and details below.
+#. Confirm outbound access from app1 and app2 is now blocked
 
-   - From the Resource Group pick either app1 or app2
-
-   .. image:: ./images/console2.png
-
-   - Navigate to Serial Console - and login
-
-   .. image:: ./images/console7.png
-
-   .. image:: ./images/console8.png
-
-   - Now test the blocking configuration
+   - Serial console to either app1 or app2 and type the following commands
 
    .. code-block:: shell
 
       ping -c 3 google.com
-      ping -c 3 1.0.0.1
 
    .. image:: ./images/pinggoogle.png
-    
 
    - This should result in 100% packet loss
 
-#. Configure the App Servers (APP1) and (APP2) to use the DNS Caching VIP 
+   - review security firewall policy OUTBOUND-FORWARDING rules allow none
+
+   .. image:: ./images/outboundnone.png
+
+#. Configure app1 and app2 to use the DNS Caching VIP 
     
-   - You will need the internal IP of the AFM VIP (below 10.0.3.4) and to be SSH'd into both app servers.  On each App server update the systemd-resolved.conf to leverage our F5 DNS cache so that AFM FQDN resolution works correctly. 
+   - On each App server update the systemd-resolved.conf to leverage our F5 DNS cache so that AFM FQDN resolution works correctly. Replace **10.0.3.4** with INTERNAL SELF if different
     
    .. code-block:: shell
     
       sudo su -c 'echo "DNS=10.0.3.4" >> /etc/systemd/resolved.conf && systemctl restart systemd-resolved.service'
 
-#. Whitelist specific hosts/ports/protocols/FQDN's (i.e. allow 80/443 to google.com and ICMP to CloudFlare DNS)
+#. Modify AFM to whitelist specific hosts/ports/protocols/FQDN's (i.e. allow 80/443 to google.com and ICMP to CloudFlare DNS)
 
    .. code-block:: shell
 
       modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-GOOGLE.COM { ip-protocol tcp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { fqdns add { google.com www.google.com } ports add { 80 443 } } place-after first action accept log yes } }
       modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
         
-   - Retest the configuration and you now should be able to ping.
-
-   .. code-block:: shell
-
-      ping -c 3 google.com
-      ping -c 3 1.1.1.1
+   - review security firewall policy OUTBOUND-FORWARDING rules include whitelist
 
    .. image:: ./images/pingcloudflare.png
-
 
 #. Confirm whitelisting works as expected by testing from the APP servers , show logs in AFM gui to confirm 
 
    .. code-block:: shell
 
-      nc -v google.com 80
-      nc -v google.com 443
       ping 1.1.1.1
       ping 1.0.0.1
+      ping -c google.com
+      nc -v google.com 80
+      nc -v google.com 443
+
+   - ping to google will fail while the others commands match whitelist accept rules
 
 Demonstrate Ingress NAT via AFM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 #. Ensure that the Public Interface NSG of the F5 Instance has a firewall rule allowing all ports and protocols.
 
    .. image:: ./images/forward1.png
@@ -361,9 +348,7 @@ Demonstrate Ingress NAT via AFM
 
    .. image:: ./images/forward5.png
 
-
-
-#. Configure inbound port mappings for SSH to both App servers (i.e. TCP/2022 to App1, TCP/2023 to App2)
+#. Configure inbound port mappings for SSH to both App servers (i.e. TCP/2022 to app1, TCP/2023 to app2)
 
    .. code-block:: shell
 
@@ -372,7 +357,7 @@ Demonstrate Ingress NAT via AFM
    .. code-block:: shell
 
       create security nat destination-translation APP2-SSH { addresses replace-all-with { <APP-2 IP> { } } ports replace-all-with { 22 } type static-pat }
-        
+
    .. code-block:: shell
 
       create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }

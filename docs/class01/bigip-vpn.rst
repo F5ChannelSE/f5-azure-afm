@@ -98,7 +98,7 @@ Deploy said VPN
       create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
       create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.5.1%1 }
 
-#. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. 
+#. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. Replace x with student#...example f5student905 is 5.
 
    .. code-block:: shell
 
@@ -119,7 +119,7 @@ Deploy said VPN
 
       create security firewall policy SSH_VIP rules replace-all-with { ALLOW-SSH { action accept ip-protocol tcp destination { ports add { 22 } } } }
 
-#. Create VIP 
+#. Create VIP for inbound and outbound tunnel access to app servers.  Replace x with student#...example f5student905 is 5.
 
    .. code-block:: shell
 
@@ -129,7 +129,7 @@ Deploy said VPN
 
 #. Validate solution by establishing connection to remote server across vpn tunnel
 
-   - From APP1 or APP2.  Replace **10.0.3.7** with <INTERNAL VIP> IP address from table above if different
+   - From APP1 or APP2.  Replace **10.0.3.5** with <INTERNAL VIP> IP address from table above if different
 
    .. code-block:: shell
 

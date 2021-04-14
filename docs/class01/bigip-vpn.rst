@@ -133,8 +133,8 @@ Deploy said VPN
 
    .. code-block:: shell
 
-      nc -v 10.0.3.7 22
-      ssh azureuser@10.0.3.7
+      nc -v 10.0.3.5 22
+      ssh azureuser@10.0.3.5
     
    - Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
     

@@ -358,6 +358,8 @@ Demonstrate Ingress NAT via AFM
       create security nat destination-translation APP2-SSH { addresses replace-all-with { 10.0.3.6 { } } ports replace-all-with { 22 } type static-pat }
       create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <10.0.2.11>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <10.0.2.11>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }
 
+   .. image:: ./images/inboundpat.png
+
 #. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS.  Replace **<10.0.2.11>** = INBOUND-IP PAT PRIVATE.  Replace with actual IP addresses captured in step 1 of Network Table if different.  This step works best when using a text editor to replace code below with actual addresses.
 
    .. code-block:: shell
@@ -365,7 +367,9 @@ Demonstrate Ingress NAT via AFM
       create security firewall policy INBOUND-PAT { rules replace-all-with { ALLOW-APP1-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <10.0.2.11>/32 } ports replace-all-with { 2022 } } source { vlans replace-all-with { external } } } ALLOW-APP2-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <10.0.2.11>/32 } ports replace-all-with { 2023 } } source { vlans replace-all-with { external } } } } }
       create ltm virtual VS-FORWARDING-INBOUND { destination 0.0.0.0:any mask any ip-forward fw-enforced-policy INBOUND-PAT profiles replace-all-with { fastL4 } security-nat-policy { policy INBOUND-PAT } vlans-enabled vlans replace-all-with { external } }
 
-#. Validate configuration from outside of the F5, show logs on AFM.  Replace with actual IP addresses captured in step 1 of Network Table if different. 
+   .. image:: ./images/inboundpatfw.png
+
+#. Validate configuration from outside of the F5, show logs on AFM.  Replace **<INBOUND-IP PAT PUBLIC>** with actual IP addresses captured in step 1 of Network Table if different. 
 
    .. code-block:: shell
 

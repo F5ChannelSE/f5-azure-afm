@@ -19,15 +19,42 @@ Discuss how the virtuals will work to get traffic flowing for desired services.
    - The virtuals with cross RD snat applied allow the F5 to broker connections between overlapping IP space by virtual of being able to manipulate src/dst IP's between the RD's
     
 Required Information 
-   - Remote VPN End Point: 52.158.219.164
-   - Local Instance External Private Self IP : 10.0.2.x
-   - Local Instance Public Self IP : <Public IP Mapped to 10.0.2.x in Azure>  - This needs to be provided to the Lab Proctor to stage the remote side of the VPN tunnel.
-   - PSK : "RandomGarbage123"
-   - Remote Server : 10.0.3.5
-   - Internal VIP/SNAT Pool IP : <Allocate addition 10.0.3.x to BIGIP Internal NIC in Azure Console>
-   - APP1 Internal IP : 10.0.3.x
-   - APP2 Internal IP : 10.0.3.x
-   - VPN VTI Space : 172.31.x.0/24 - Replace X with Student Number
+
+.. list-table::
+    :widths: 20 20 20
+    :header-rows: 1
+    :stub-columns: 0
+
+    * - **Name**
+      - **IP Address**
+      - **Note**
+    * - REMOTE VPN ENDPOINT
+      - 52.158.219.164
+      - public dest for IPSEC
+    * - EXTERNAL SELF PRIVATE
+      - 10.0.2.4
+      - local source for IPSEC
+    * - EXTERNAL SELF PUBLIC
+      - 
+      - used as IPSEC ID
+    * - INBOUND-IP PAT PRIVATE
+      - 10.0.2.11
+      - ingress NAT (PAT) in AFM
+    * - INBOUND-IP PAT PUPLIC
+      - 
+      - ingress destination IP in Azure
+    * - INTERNAL SELF
+      - 10.0.3.4
+      - local source for IPSEC
+    * - INTERNAL VIP
+      - 10.0.3.7
+      - Internal VIP (VPN)
+    * - App1
+      - 10.0.3.5
+      - NAT target and pool (VPN)
+    * - App2
+      - 10.0.3.6
+      - NAT target and pool (VPN)
 
 Deploy said VPN
 ~~~~~~~~~~~~~~~
@@ -47,36 +74,32 @@ Deploy said VPN
 
 #. Create VPN configuration
 
+   - create IPsec policy for interface mode
+
    .. code-block:: shell
 
       create net ipsec ipsec-policy VPN_IPSEC_POLICY { protocol esp mode interface ike-phase2-auth-algorithm sha256 ike-phase2-encrypt-algorithm aes256 ike-phase2-perfect-forward-secrecy modp2048 ike-phase2-lifetime 1440 ike-phase2-lifetime-kilobytes 0 }
 
+   - create IPsec traffic selector. Replace **<EXTERNAL SELF PUBLIC>** with associated IP address in the table above
+
    .. code-block:: shell
 
       create net ipsec traffic-selector VPN_RD1_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
-
-   .. code-block:: shell
-
       create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.219.164 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <EXTERNAL SELF PUBLIC> peers-id-type address peers-id-value 52.158.219.164 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
+
+   - create IPsec tunnels.  Replace **10.0.3.7** with EXTERNAL SELF PRIVATE address in the table above if different.
 
    .. code-block:: shell
 
       create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_RD1_TS defaults-from ipsec
+      create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address 10.0.3.7 remote-address 52.158.219.164
 
-   .. code-block:: shell
-
-      create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address <Local Public Self IP Azure Private IP> remote-address 52.158.219.164
+   - create remote route and assign to vpn route-domain
 
    .. code-block:: shell
 
       modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
-
-   .. code-block:: shell
-
       create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
-
-   .. code-block:: shell
-
       create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
 
 #. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. 
@@ -84,9 +107,6 @@ Deploy said VPN
    .. code-block:: shell
 
       create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
-
-   .. code-block:: shell
-
       create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
 
 #. Create LTM Pools for SSH traffic
@@ -94,13 +114,7 @@ Deploy said VPN
    .. code-block:: shell
 
       create ltm pool RD1_SSH members replace-all-with { 10.0.3.5%1:22 } monitor tcp_half_open
-
-   .. code-block:: shell
-
       create ltm pool APP1_SSH members replace-all-with { 10.0.3.5:22 } monitor tcp_half_open
-
-   .. code-block:: shell
-
       create ltm pool APP2_SSH members replace-all-with { 10.0.3.6:22 } monitor tcp_half_open
 
 #. Create FW Policy
@@ -114,13 +128,7 @@ Deploy said VPN
    .. code-block:: shell
 
       create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.x:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
-
-   .. code-block:: shell
-
       create ltm virtual VS_APP1_SSH-RD1 destination 172.31.x.10%1:22 pool APP1_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
-
-   .. code-block:: shell
-
       create ltm virtual VS_APP2_SSH-RD1 destination 172.31.x.11%1:22 pool APP2_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
 #. Validate solution 

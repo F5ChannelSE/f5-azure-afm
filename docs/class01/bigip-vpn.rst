@@ -61,10 +61,6 @@ Deploy said VPN
 
 #. Validate BIG-IP for VPN termination (Should be completed after the previous exercise BIG-IP Base Configuration) Reference IP Table for the below IP 
 
-   - Self IP Lock Down, sys db keys, Azure NSG rules, and AFM firewall policy should be set if the previous sections were completed correctly.
-
-      .. image:: ./images/vpn4.png
-
 #. Create RD1 for routed tunnel to exist inside of and disable strict isolation in RD0.
 
    .. code-block:: shell
@@ -109,7 +105,7 @@ Deploy said VPN
       create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
       create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
 
-#. Create LTM Pools for SSH traffic
+#. Create LTM Pools for SSH traffic. Replace **10.0.3.5** and **10.0.3.6** with app1 and app2 IP address from table above if different
 
    .. code-block:: shell
 
@@ -131,15 +127,23 @@ Deploy said VPN
       create ltm virtual VS_APP1_SSH-RD1 destination 172.31.x.10%1:22 pool APP1_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
       create ltm virtual VS_APP2_SSH-RD1 destination 172.31.x.11%1:22 pool APP2_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
-#. Validate solution 
+#. Validate solution by establishing connection to remote server across vpn tunnel
 
-   - From APP1 or APP2
+   - From APP1 or APP2.  Replace **10.0.3.7** with <INTERNAL VIP> IP address from table above if different
 
    .. code-block:: shell
 
-      nc -v <Internal VIP IP> 22
-      ssh azureuser@<Internal VIP IP>
+      nc -v 10.0.3.7 22
+      ssh azureuser@10.0.3.7
     
    - Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
     
-#. Wrap up and delete resource group 
+#. Wrap up and delete resource group
+
+   - browse to Azure f5student#-rg and select "Delete resource group"
+
+   - enter f5student#-rg and select "Delete" to confirm deletion of resource group
+
+   .. image:: .//images/deleterg.png
+
+

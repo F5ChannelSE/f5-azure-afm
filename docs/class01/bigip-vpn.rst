@@ -83,20 +83,20 @@ Deploy said VPN
       create net ipsec traffic-selector VPN_RD1_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
       create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.219.164 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <EXTERNAL SELF PUBLIC> peers-id-type address peers-id-value 52.158.219.164 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
 
-   - create IPsec tunnels.  Replace **10.0.3.7** with EXTERNAL SELF PRIVATE address in the table above if different.
+   - create IPsec tunnels.  Replace **10.0.2.4** with EXTERNAL SELF PRIVATE address in the table above if different.
 
    .. code-block:: shell
 
       create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_RD1_TS defaults-from ipsec
-      create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address 10.0.3.7 remote-address 52.158.219.164
+      create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address 10.0.2.4 remote-address 52.158.219.164
 
-   - create remote route and assign to vpn route-domain
+   - create remote route and assign to vpn route-domain.  Replace **x** with student#...example f5student905 is 5.
 
    .. code-block:: shell
 
       modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
       create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
-      create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
+      create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.5.1%1 }
 
 #. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. 
 

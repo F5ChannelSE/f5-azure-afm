@@ -40,7 +40,7 @@ BIG-IP Network Addressing
       - ext-ipconfig1
       - 10.0.2.11
       - ingress NAT (PAT) in AFM
-    * - INBOUND-IP PAT PUBLIC
+    * - INBOUND-IP PAT PUPLIC
       - none
       - ext-ipconfig1
       - 
@@ -320,19 +320,21 @@ Demonstrate Egress filtering
         
    - review security firewall policy OUTBOUND-FORWARDING rules include whitelist
 
-   .. image:: ./images/pingcloudflare.png
+   .. image:: ./images/outboundwhitelist.png
 
-#. Confirm whitelisting works as expected by testing from the APP servers , show logs in AFM gui to confirm 
+#. Confirm whitelist ruleset works as expected by testing from the either app1 or app2 servers
 
    .. code-block:: shell
 
-      ping 1.1.1.1
-      ping 1.0.0.1
+      ping -c 3 1.1.1.1
+      ping -c 3 1.0.0.1
       ping -c google.com
       nc -v google.com 80
       nc -v google.com 443
 
    - ping to google will fail while the others commands match whitelist accept rules
+
+   .. image:: ./images/whitelisttest.png
 
 Demonstrate Ingress NAT via AFM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -348,32 +350,26 @@ Demonstrate Ingress NAT via AFM
 
    .. image:: ./images/forward5.png
 
-#. Configure inbound port mappings for SSH to both App servers (i.e. TCP/2022 to app1, TCP/2023 to app2)
+#. Configure AFM inbound port mappings for SSH to both App servers (i.e. TCP/2022 to app1, TCP/2023 to app2).  The code below leverages the IP address assumptions:  **10.0.3.5** = app1, **10.0.3.6** = app2, **<10.0.2.11>** = INBOUND-IP PAT PRIVATE.  Replace with actual IP addresses captured in step 1 of Network Table if different.  This step works best when using a text editor to replace code below with actual addresses.
 
    .. code-block:: shell
 
-      create security nat destination-translation APP1-SSH { addresses replace-all-with { <APP-1 IP> { } } ports replace-all-with { 22 } type static-pat }
+      create security nat destination-translation APP1-SSH { addresses replace-all-with { 10.0.3.5 { } } ports replace-all-with { 22 } type static-pat }
+      create security nat destination-translation APP2-SSH { addresses replace-all-with { 10.0.3.6 { } } ports replace-all-with { 22 } type static-pat }
+      create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <10.0.2.11>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <10.0.2.11>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }
+
+#. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS.  Replace **<10.0.2.11>** = INBOUND-IP PAT PRIVATE.  Replace with actual IP addresses captured in step 1 of Network Table if different.  This step works best when using a text editor to replace code below with actual addresses.
 
    .. code-block:: shell
 
-      create security nat destination-translation APP2-SSH { addresses replace-all-with { <APP-2 IP> { } } ports replace-all-with { 22 } type static-pat }
-
-   .. code-block:: shell
-
-      create security nat policy INBOUND-PAT { rules replace-all-with { APP1-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2022 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP1-SSH } } APP2-SSH { destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 { } } ports replace-all-with { 2023 } } ip-protocol tcp log-profile AFM-LOCAL source { vlans replace-all-with { external } } translation { destination APP2-SSH } } } }
-
-#. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS
-
-   .. code-block:: shell
-
-      create security firewall policy INBOUND-PAT { rules replace-all-with { ALLOW-APP1-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2022 } } source { vlans replace-all-with { external } } } ALLOW-APP2-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <PUBLIC INTERFACE IP FOR INBOUND PAT>/32 } ports replace-all-with { 2023 } } source { vlans replace-all-with { external } } } } }
+      create security firewall policy INBOUND-PAT { rules replace-all-with { ALLOW-APP1-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <10.0.2.11>/32 } ports replace-all-with { 2022 } } source { vlans replace-all-with { external } } } ALLOW-APP2-SSH { action accept ip-protocol tcp log yes destination { addresses replace-all-with { <10.0.2.11>/32 } ports replace-all-with { 2023 } } source { vlans replace-all-with { external } } } } }
       create ltm virtual VS-FORWARDING-INBOUND { destination 0.0.0.0:any mask any ip-forward fw-enforced-policy INBOUND-PAT profiles replace-all-with { fastL4 } security-nat-policy { policy INBOUND-PAT } vlans-enabled vlans replace-all-with { external } }
 
-#. Validate configuration from outside of the F5, show logs on AFM
+#. Validate configuration from outside of the F5, show logs on AFM.  Replace with actual IP addresses captured in step 1 of Network Table if different. 
 
    .. code-block:: shell
 
-      nc -v <Public IP for inbound pat> 2022
-      nc -v <Public IP for inbound pat> 2023
+      nc -v <INBOUND-IP PAT PUBLIC> 2022
+      nc -v <INBOUND-IP PAT PUBLIC> 2023
       ssh -p 2022 azureuser@<public ip>
       ssh -p 2023 azureuser@<public ip>

@@ -97,11 +97,11 @@ Deploy said VPN
 
    .. code-block:: shell
 
-      create ltm pool APP1_SSH members replace-all-with { <APP1 IP>:22 } monitor tcp_half_open
+      create ltm pool APP1_SSH members replace-all-with { 10.0.3.5:22 } monitor tcp_half_open
 
    .. code-block:: shell
 
-      create ltm pool APP2_SSH members replace-all-with { <APP2 IP>:22 } monitor tcp_half_open
+      create ltm pool APP2_SSH members replace-all-with { 10.0.3.6:22 } monitor tcp_half_open
 
 #. Create FW Policy
 

@@ -37,12 +37,6 @@ Required Information
     * - EXTERNAL SELF PUBLIC
       - 
       - used as IPSEC ID
-    * - INBOUND-IP PAT PRIVATE
-      - 10.0.2.11
-      - ingress NAT (PAT) in AFM
-    * - INBOUND-IP PAT PUPLIC
-      - 
-      - ingress destination IP in Azure
     * - INTERNAL SELF
       - 10.0.3.4
       - local source for IPSEC
@@ -70,17 +64,17 @@ Deploy said VPN
 
 #. Create VPN configuration
 
-   - create IPsec policy for interface mode
+   - create IPsec policy and traffic selector for interface mode
 
    .. code-block:: shell
 
       create net ipsec ipsec-policy VPN_IPSEC_POLICY { protocol esp mode interface ike-phase2-auth-algorithm sha256 ike-phase2-encrypt-algorithm aes256 ike-phase2-perfect-forward-secrecy modp2048 ike-phase2-lifetime 1440 ike-phase2-lifetime-kilobytes 0 }
+      create net ipsec traffic-selector VPN_RD1_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
 
-   - create IPsec traffic selector. Replace **<EXTERNAL SELF PUBLIC>** with associated IP address in the table above
+   - create IPsec peer. Replace **<EXTERNAL SELF PUBLIC>** with associated IP address in the table above
 
    .. code-block:: shell
 
-      create net ipsec traffic-selector VPN_RD1_TS { source-address 0.0.0.0/0 destination-address 0.0.0.0/0 ipsec-policy VPN_IPSEC_POLICY }
       create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.219.164 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <EXTERNAL SELF PUBLIC> peers-id-type address peers-id-value 52.158.219.164 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
 
    - create IPsec tunnels.  Replace **10.0.2.4** with EXTERNAL SELF PRIVATE address in the table above if different.

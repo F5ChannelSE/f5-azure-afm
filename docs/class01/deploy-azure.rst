@@ -18,8 +18,8 @@ Launch BIG-IP 3nic stack
 #. You will be redirected to portal.azure.com
 
    - Log into the azure portal when prompted
-   - Username : f5student#@f5custlabs.onmicrosoft.com
-   - Password:  ChangeMe123
+   - Username : **f5student#@f5custlabs.onmicrosoft.com**
+   - Password:  **ChangeMe123**
 
 #. Complete the Customized template using the following values **(replace # with your student number to avoid conflicts)**
 
@@ -50,8 +50,8 @@ Launch BIG-IP 3nic stack
    .. image:: ./images/arm3nic.png
       :scale: 40 %
 
-#. Click the “Review + Create”
-#. Click “Create” after confirming entries
+#. Click the **“Review + Create”**
+#. Click **Create** after confirming entries
 #. This will take appoximately 10 minutes
 
    - You can monitor deployment on the azure dashboard by opening the Notifications in the azure portal
@@ -61,11 +61,11 @@ Launch BIG-IP 3nic stack
 Deploy App Servers
 ~~~~~~~~~~~~~~~~~~
 
-#. Go to f5student#-rg resource group
+#. Browse to **f5student#-rg** resource group in Azure portal
 #. Deploy App1
 
-   - Click "Add"
-   - Select Ubuntu Server 18.04 LTS
+   - Click **Add**
+   - Select **Ubuntu Server 18.04 LTS**
    - complete virtual machine template with following values
 
    +------------------------+--------------------------+
@@ -85,7 +85,7 @@ Deploy App Servers
    .. image:: ./images/ubuntucreate.png
       :scale: 40 %
       
-   - click "Next : Disks"
+   - click **"Next : Disks"**
 
    +------------------------+--------------------------+
    | OS Disk Type           | Standard HDD             |
@@ -98,7 +98,7 @@ Deploy App Servers
    .. image:: ./images/ubuntudisk.png
       :scale: 40 %
      
-   - click "Next : Networking"
+   - click **"Next : Networking"**
 
    +------------------------+--------------------------+
    | Subnet                 | internal (10.0.3.0/24)   |
@@ -111,17 +111,18 @@ Deploy App Servers
    .. image:: ./images/ubuntunetwork.png
       :scale: 40 %
      
-   - click "Review + create"
+   - click **"Review + create"**
 
-#. Click “Create” after confirming entries
+#. Click **Create** after confirming entries
+
 #. This will take appoximately 1 minute
 
    - Continue when deployment completed
 
 #. Repeat previous steps to deploy App2
 
-   - Click "Add"
-   - Select Ubuntu Server 18.04 LTS
+   - Click **Add**
+   - Select **Ubuntu Server 18.04 LTS**
    - complete virtual machine template with following values
 
    +------------------------+--------------------------+
@@ -138,7 +139,7 @@ Deploy App Servers
    | Public inbound ports   | none                     |
    +------------------------+--------------------------+
 
-   - click "Next : Disks"
+   - click **"Next : Disks"**
 
    +------------------------+--------------------------+
    | OS Disk Type           | Standard HDD             |
@@ -148,7 +149,7 @@ Deploy App Servers
    | Storage Account        | select your rg from list |
    +------------------------+--------------------------+
 
-   - click "Next : Networking"
+   - click **"Next : Networking"**
 
    +------------------------+--------------------------+
    | Subnet                 | internal (10.0.3.0/24)   |
@@ -158,9 +159,9 @@ Deploy App Servers
    | NIC security group     | None                     |
    +------------------------+--------------------------+
 
-   - click "Review + create"
+   - click **"Review + create"**
 
-#. Click “Create” after confirming entries
+#. Click **Create** after confirming entries
 #. This will take appoximately 1 minute
 
    - Continue when deployment completed
@@ -170,14 +171,14 @@ Review the BIG IP config
 
 #. Access the BIG-IP management GUI
 
-   - search f5student#bigip-mgmt-pip in azure portal to capture BIG-IP management public address
-   - browse to https://<f5student#bigip-mgmt-pip> 
-   - Username: admin
-   - Password: ChangeMeNow123!
+   - search **f5student#bigip-mgmt-pip** in azure portal to capture BIG-IP management public address
+   - browse to **https://<f5student#bigip-mgmt-pip**
+   - Username: **admin**
+   - Password: **ChangeMeNow123!**
 
 #. Examine system config to validate basic network config
 
-   - browse to System->Resource Provisioning to confirm AFM and LTM are provisioned
-   - browse to Network->Self IPs to capture external and internal nics and associated ip addresses
-   - browse to Network->Routes to capture default route
+   - browse to **System->Resource Provisioning** to confirm AFM and LTM are provisioned
+   - browse to **Network->Self IPs** to capture external and internal nics and associated ip addresses
+   - browse to **Network->Routes** to capture default route
 

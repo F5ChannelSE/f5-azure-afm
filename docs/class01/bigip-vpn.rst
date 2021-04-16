@@ -53,7 +53,7 @@ Required Information
 Deploy said VPN
 ~~~~~~~~~~~~~~~
 
-#. Validate BIG-IP for VPN termination (Should be completed after the previous exercise BIG-IP Base Configuration) Reference IP Table for the below IP 
+#. Validate BIG-IP for VPN termination (Thiis should be completed after the previous exercise BIG-IP Base Configuration) Reference IP Table for the below IP 
 
 #. Create RD1 for routed tunnel to exist inside of and disable strict isolation in RD0.
 
@@ -77,14 +77,14 @@ Deploy said VPN
 
       create net ipsec ike-peer VPN_PEER_RD1 { remote-address 52.158.219.164 phase1-auth-method pre-shared-key phase1-hash-algorithm sha256 phase1-encrypt-algorithm aes256 phase1-perfect-forward-secrecy modp2048 preshared-key "RandomGarbage123" my-id-type address my-id-value <EXTERNAL SELF PUBLIC> peers-id-type address peers-id-value 52.158.219.164 version replace-all-with { v2 } traffic-selector replace-all-with { VPN_RD1_TS } nat-traversal on  }
 
-   - create IPsec tunnels.  Replace **10.0.2.4** with EXTERNAL SELF PRIVATE address in the table above if different.
+   - create IPsec tunnels.  Replace **10.0.2.4** with **EXTERNAL SELF PRIVATE** address in the table above if different.
 
    .. code-block:: shell
 
       create net tunnels ipsec IPSEC_RD1_PROFILE traffic-selector VPN_RD1_TS defaults-from ipsec
       create net tunnels tunnel IPSEC_RD1_VTI profile IPSEC_RD1_PROFILE local-address 10.0.2.4 remote-address 52.158.219.164
 
-   - create remote route and assign to vpn route-domain.  Replace **x** with student#...example f5student905 is 5.
+   - create remote route and assign to vpn route-domain.  Replace **x** with **student#**...example f5student905 is 5.
 
    .. code-block:: shell
 
@@ -92,7 +92,7 @@ Deploy said VPN
       create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
       create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.5.1%1 }
 
-#. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. Replace x with student#...example f5student905 is 5.
+#. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. Replace **x** with **student#**...example f5student905 is 5.
 
    .. code-block:: shell
 
@@ -113,7 +113,7 @@ Deploy said VPN
 
       create security firewall policy SSH_VIP rules replace-all-with { ALLOW-SSH { action accept ip-protocol tcp destination { ports add { 22 } } } }
 
-#. Create VIP for inbound and outbound tunnel access to app servers.  Replace x with student#...example f5student905 is 5.
+#. Create VIP for inbound and outbound tunnel access to app servers.  Replace **x **with **student#**...example f5student905 is 5.
 
    .. code-block:: shell
 
@@ -123,7 +123,7 @@ Deploy said VPN
 
 #. Validate solution by establishing connection to remote server across vpn tunnel
 
-   - From APP1 or APP2.  Replace **10.0.3.5** with <INTERNAL VIP> IP address from table above if different
+   - From APP1 or APP2.  Replace **10.0.3.5** with **INTERNAL VIP** IP address from table above if different
 
    .. code-block:: shell
 
@@ -134,9 +134,9 @@ Deploy said VPN
     
 #. Wrap up and delete resource group
 
-   - browse to Azure f5student#-rg and select "Delete resource group"
+   - browse to Azure **f5student#-rg** and select **"Delete resource group"**
 
-   - enter f5student#-rg and select "Delete" to confirm deletion of resource group
+   - enter **f5student#-rg** and select **Delete** to confirm deletion of resource group
 
    .. image:: .//images/deleterg.png
 

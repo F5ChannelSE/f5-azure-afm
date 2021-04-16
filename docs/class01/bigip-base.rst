@@ -67,16 +67,16 @@ BIG-IP Network Addressing
       - NAT target and pool (VPN)
 
 #. Copy and paste the table above to a text editor.  Validate the predicted IP addresses and update with actual IP addresses from your environment if different.  Fill in the missing public IP addresses.  You will need to refer back to this table throughout the lab.
-    - Browse to BIG-IP GUI Network->Self IPs to capture external and internal nics and associated ip addresses
+    - Browse to **BIG-IP GUI Network->Self IPs** to capture external and internal nics and associated ip addresses
 
     .. image:: ./images/selfip.png
 
-    - Browse to Azure f5student#bigip-ext->ip config to capture BIG-IP Networking info, enable ip forwarding and then click Save
+    - Browse to Azure **f5student#bigip-ext->ip** config to capture BIG-IP Networking info, enable ip forwarding and then click Save
 
     .. image:: ./images/externalforward2.png
 
 
-    - Browse to Azure f5student#bigip-int->ip config to capture BIG-IP Networking info, enable ip forwarding and add Secondary IP
+    - Browse to Azure **f5student#bigip-int->ip** config to capture BIG-IP Networking info, **enable ip forwarding** and add **Secondary IP**
 
     .. image:: ./images/vpn2.png
 
@@ -88,9 +88,9 @@ BIG-IP Network Addressing
     .. image:: ./images/vpn4.png
 
 #. Connect to BIG-IP CLI. 
-    - browse to Azure f5student#-f5vm01 and select "Serial console"
-    - login: azureuser
-    - password: ChangeMeNow123!
+    - browse to Azure **f5student#-f5vm01** and select **"Serial console"**
+    - login: **azureuser**
+    - password: **ChangeMeNow123!**
 
     .. image:: ./images/bigipserial.png
 
@@ -109,7 +109,7 @@ BIG-IP Network Addressing
        modify sys db ipsec.if.checkpolicy { value "disable" }
        modify sys db connection.vlankeyed { value "disable" }
 
-#. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace **10.0.3.4** with INTERNAL SELF IP address from the info captured in the table above if different
+#. Configure local DNS cache for the F5 Firewall by getting the internal Self IP address from the table above. Replace **10.0.3.4** with **INTERNAL SELF** IP address from the info captured in the table above if different
 
    .. code-block:: shell
 
@@ -120,7 +120,7 @@ BIG-IP Network Addressing
        create ltm virtual DNS_CACHE_UDP { destination 10.0.3.4:53 ip-protocol udp pool AZURE_VNET_DNS profiles replace-all-with { udp {} DNS_CACHE {} } vlans-enabled vlans replace-all-with { internal } }
        create net dns-resolver LOCAL_CACHE { answer-default-zones yes forward-zones replace-all-with { . { nameservers replace-all-with { 10.0.3.4:53 } } } }
 
-   - Browse to BIG-IP GUI Local Traffic->Network Map to confirm two virtual servers and associated pool member was created
+   - Browse to BIG-IP GUI **Local Traffic->Network Map** to confirm two virtual servers and associated pool member was created
       .. image:: ./images/dnscache.png
 
 #. Configure FQDN resolution of AFM against Azure VNET DNS, Configure AFM local logging, etc.
@@ -176,7 +176,7 @@ BIG-IP Network Addressing
 
 #. Configure basic AFM Policies and NAT Policies for initial outbound PAT via a single additional IP on the instance
     
-   - You will need the 1st additional "External" IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure.  Replace **10.0.2.10** with the INTERNAL VIP from the table above if different.
+   - You will need the 1st additional **External** IP for the instace here.  Please remember you need to use the private Azure IP and not the Public IP that get's nat'd to the instance via Azure.  Replace **10.0.2.10** with the **INTERNAL VIP** from the table above if different.
 
    .. code-block:: shell
 
@@ -207,11 +207,11 @@ BIG-IP Network Addressing
 
 #. Change Azure VNET routing, enable forwarding, etc and test basic configuration.
 
-   - Create Azure UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP.  Browse to your f5student#-rg then click "Add"
+   - Create Azure UDR (user defined route) 0.0.0.0/0 to the AFM Internal Self IP.  Browse to your **f5student#-rg** then click **Add**
 
    .. image:: ./images/azureroute8.png
 
-   - Search for route table then click "Create"
+   - Search for route table then click **Create**
 
    .. image:: ./images/azureroute9.png
 
@@ -227,9 +227,9 @@ BIG-IP Network Addressing
 
    .. image:: ./images/azureroute10.png
 
-   - click "Review + create" then "Create"
-   - after Deployment completed click "Go to resource"
-   - click "Routes" then "Add"
+   - click **"Review + create"** then **Create**
+   - after Deployment completed click **"Go to resource"**
+   - click **Routes** then **Add**
 
    .. image:: ./images/azureroute12.png
 
@@ -247,7 +247,7 @@ BIG-IP Network Addressing
 
    .. image:: ./images/azureroute13.png
 
-   - click "Subnets" then "Associate"
+   - click **Subnets** then **Associate**
    - Add Subnet using the following values
 
    +-------------------------+----------------------------+
@@ -258,21 +258,21 @@ BIG-IP Network Addressing
 
    .. image:: ./images/azureroute14.png
 
-   - click "OK" then "Overview" to ensure results match the image below
+   - click **OK** then **Overview** to ensure results match the image below
 
    .. image:: ./images/azureroute15.png
 
 #. Confirm app1 and app2 can access internet via AFM
 
-   - browse to Azure f5student#-app1 and f5student#-app2 then select "Serial console"
-   - login: azureuser
-   - password: ChangeMeNow123!
+   - browse to Azure **f5student#-app1** and **f5student#-app2** then select **"Serial console"**
+   - login: **azureuser**
+   - password: **ChangeMeNow123!**
 
    .. code-block:: shell
 
       ping -c 3 google.com
 
-   - browse to BIG-IP GUI Security->Network Firewall->Policies to review OUTBOUND-FORWARDING rules accept any
+   - browse to BIG-IP GUI **Security->Network Firewall->Policies** to review **OUTBOUND-FORWARDING** rules accept any
 
    .. image:: ./images/outboundallow.png
 
@@ -299,13 +299,13 @@ Demonstrate Egress filtering
 
    - This should result in 100% packet loss
 
-   - review security firewall policy OUTBOUND-FORWARDING rules allow none
+   - review security firewall policy **OUTBOUND-FORWARDING** rules allow none
 
    .. image:: ./images/outboundnone.png
 
 #. Configure app1 and app2 to use the DNS Caching VIP 
     
-   - On each App server update the systemd-resolved.conf to leverage our F5 DNS cache so that AFM FQDN resolution works correctly. Replace **10.0.3.4** with INTERNAL SELF if different
+   - On each App server update the systemd-resolved.conf to leverage our F5 DNS cache so that AFM FQDN resolution works correctly. Replace **10.0.3.4** with **INTERNAL SELF** if different
     
    .. code-block:: shell
     
@@ -318,7 +318,7 @@ Demonstrate Egress filtering
       modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-GOOGLE.COM { ip-protocol tcp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { fqdns add { google.com www.google.com } ports add { 80 443 } } place-after first action accept log yes } }
       modify security firewall policy OUTBOUND-FORWARDING rules add { ALLOW-CF-ICMP { ip-protocol icmp source { addresses add { 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 } vlans add { internal } } destination { addresses add { 1.1.1.1 1.0.0.1 } } place-after first action accept log yes } }
         
-   - review security firewall policy OUTBOUND-FORWARDING rules include whitelist
+   - review security firewall policy **OUTBOUND-FORWARDING** rules include whitelist
 
    .. image:: ./images/outboundwhitelist.png
 
@@ -350,7 +350,7 @@ Demonstrate Ingress NAT via AFM
 
    .. image:: ./images/forward5.png
 
-#. Configure AFM inbound port mappings for SSH to both App servers (i.e. TCP/2022 to app1, TCP/2023 to app2).  The code below leverages the IP address assumptions:  **10.0.3.5** = app1, **10.0.3.6** = app2, **<10.0.2.11>** = INBOUND-IP PAT PRIVATE.  Replace with actual IP addresses captured in step 1 of Network Table if different.  This step works best when using a text editor to replace code below with actual addresses.
+#. Configure AFM inbound port mappings for SSH to both App servers (i.e. TCP/2022 to app1, TCP/2023 to app2).  The code below leverages the IP address assumptions:  **10.0.3.5** = app1, **10.0.3.6** = app2, **<10.0.2.11>** = **INBOUND-IP PAT PRIVATE**.  Replace with actual IP addresses captured in step 1 of Network Table if different.  This step works best when using a text editor to replace code below with actual addresses.
 
    .. code-block:: shell
 
@@ -360,7 +360,7 @@ Demonstrate Ingress NAT via AFM
 
    .. image:: ./images/inboundpat.png
 
-#. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS.  Replace **<10.0.2.11>** = INBOUND-IP PAT PRIVATE.  Replace with actual IP addresses captured in step 1 of Network Table if different.  This step works best when using a text editor to replace code below with actual addresses.
+#. Configure matching AFM firewall rules to allow traffic through the NAT and create inbound forwarding VS.  Replace **<10.0.2.11>** = **INBOUND-IP PAT PRIVATE**.  Replace with actual IP addresses captured in step 1 of Network Table if different.  **This step works best when using a text editor to replace code below with actual addresses**
 
    .. code-block:: shell
 

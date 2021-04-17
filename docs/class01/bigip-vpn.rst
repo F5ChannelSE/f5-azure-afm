@@ -90,14 +90,14 @@ Deploy said VPN
 
       modify net route-domain 1 vlans add { IPSEC_RD1_VTI }
       create net self IPSEC_RD1_SELF { address 172.31.x.2%1/24 allow-service none vlan IPSEC_RD1_VTI }
-      create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.5.1%1 }
+      create net route IPSEC_RD1_REMOTE_NETWORK { network 10.0.3.0%1/24 gw 172.31.x.1%1 }
 
-#. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. Replace **x** with **student#**...example f5student905 is 5.
+#. Create SNAT Pools for Both RD's.  RD0 will require the additional Azure NIC Ip outlined above. Replace **x** with **student#**  **For RD1**...example f5student905 is 5.  For RD0 this should be 10.0.3.7 if your Internal VIP matches, otherwise use the value from your table.
 
    .. code-block:: shell
 
       create ltm snatpool RD1_SNATPOOL { members add { 172.31.x.5%1 } }
-      create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.x } }
+      create ltm snatpool RD0_SNATPOOL { members add { 10.0.3.7 } }
 
 #. Create LTM Pools for SSH traffic. Replace **10.0.3.5** and **10.0.3.6** with app1 and app2 IP address from table above if different
 
@@ -113,22 +113,22 @@ Deploy said VPN
 
       create security firewall policy SSH_VIP rules replace-all-with { ALLOW-SSH { action accept ip-protocol tcp destination { ports add { 22 } } } }
 
-#. Create VIP for inbound and outbound tunnel access to app servers.  Replace **x **with **student#**...example f5student905 is 5.
+#. Create VIP for inbound and outbound tunnel access to app servers.  Replace **x **with **student#** **For RD1**...example f5student905 is 5. For RD0 this should be 10.0.3.7 if your Internal VIP matches, otherwise use the value from your table.
 
    .. code-block:: shell
 
-      create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.x:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
+      create ltm virtual VS_RD1_SSH-RD0 destination 10.0.3.7:22 pool RD1_SSH source-address-translation { type snat pool RD1_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
       create ltm virtual VS_APP1_SSH-RD1 destination 172.31.x.10%1:22 pool APP1_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
       create ltm virtual VS_APP2_SSH-RD1 destination 172.31.x.11%1:22 pool APP2_SSH source-address-translation { type snat pool RD0_SNATPOOL } profiles replace-all-with { f5-tcp-progressive } fw-enforced-policy SSH_VIP
 
 #. Validate solution by establishing connection to remote server across vpn tunnel
 
-   - From APP1 or APP2.  Replace **10.0.3.5** with **INTERNAL VIP** IP address from table above if different
+   - From APP1 or APP2.  Replace **10.0.3.7** with **INTERNAL VIP** IP address from table above if different
 
    .. code-block:: shell
 
-      nc -v 10.0.3.5 22
-      ssh azureuser@10.0.3.5
+      nc -v 10.0.3.7 22
+      ssh azureuser@10.0.3.7
     
    - Notify the proctor and the remote side will SSH to your 172.31.x.10/11 VIP's to validate your ingress configuration. 
     
